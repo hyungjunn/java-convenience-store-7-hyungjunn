@@ -1,6 +1,7 @@
 package store;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class Product {
     private final String name;
@@ -23,21 +24,43 @@ public class Product {
         this.promotion = promotion;
     }
 
-    public void decreaseStock(Long purchaseQuantity) {
-        // 만약 purchaseQuantity가 프로모션 갯수보다 많은 경우
-        // 0. purchaseQuantity - 프로모션 갯수를 한다
-        // 1. 프로모션 갯수를 0으로 만든다.
-        // 2. 일반 갯수 - 0번 갯수를 한다.
-        if (promotionQuantity < purchaseQuantity) {
-            long exceedQuantity = purchaseQuantity - promotionQuantity;
-            if (exceedQuantity > generalQuantity) {
-                throw new IllegalArgumentException("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
-            }
-            generalQuantity -= exceedQuantity;
-            promotionQuantity -= promotionQuantity;
+    public void decreaseStock(Long purchaseQuantity, LocalDate date) {
+        if (isNotAppliedPromotion()) {
+            decreaseGeneralQuantity(purchaseQuantity);
             return;
         }
-        promotionQuantity -= purchaseQuantity;
+        decreaseStockDuringPromotion(purchaseQuantity, date);
+    }
+
+    private void decreaseGeneralQuantity(Long purchaseQuantity) {
+        validateQuantityExceeded(purchaseQuantity);
+        generalQuantity -= purchaseQuantity;
+    }
+
+    private void decreaseStockDuringPromotion(Long purchaseQuantity, LocalDate date) {
+        if (promotion.isPromotionPeriod(date)) {
+            if (promotionQuantity < purchaseQuantity) {
+                long exceedQuantity = purchaseQuantity - promotionQuantity;
+                decreaseGeneralQuantity(exceedQuantity);
+                clearOutPromotionStock();
+                return;
+            }
+            promotionQuantity -= purchaseQuantity;
+        }
+    }
+
+    private void clearOutPromotionStock() {
+        promotionQuantity -= promotionQuantity;
+    }
+
+    private void validateQuantityExceeded(Long purchaseQuantity) {
+        if (purchaseQuantity > generalQuantity) {
+            throw new IllegalArgumentException("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+        }
+    }
+
+    private boolean isNotAppliedPromotion() {
+        return promotion == null;
     }
 
     public BigDecimal getPrice() {

@@ -20,4 +20,8 @@ public enum Promotion {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public boolean isPromotionPeriod(LocalDate date) {
+        return date.isAfter(startDate) && date.isBefore(endDate);
+    }
 }
