@@ -111,11 +111,24 @@ class ProductTest {
 
     @DisplayName("프로모션 미적용 금액의 30% 멤버십 할인한다.")
     @Test
-    void membershipDiscountOnNotPromotionTest() {
+    void nonPromotionalMembershipDiscountTest() {
         Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 2L, 10L, Promotion.CARBONATE);
 
-        BigInteger amount = coke.membershipDiscountOnNotPromotion(12L);
+        BigInteger amount = coke.nonPromotionalMembershipDiscount(12L);
 
         assertThat(amount).isEqualTo(BigInteger.valueOf(3_000));
+    }
+
+    @DisplayName("프로모션 적용 후 남은 금액에 멤버십 할인 받는다.")
+    @Test
+    void promotionalMembershipDiscountTest() {
+        Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
+        Product orangeJuice = new Product("오렌지주스", BigDecimal.valueOf(1_800L), 9L, 0L, Promotion.MD_RECOMMEND);
+
+        BigInteger amount = coke.promotionalMembershipDiscount(12L);
+        BigInteger amount2 = orangeJuice.promotionalMembershipDiscount(9L);
+
+        assertThat(amount).isEqualTo(BigInteger.valueOf(2_000L));
+        assertThat(amount2).isEqualTo(BigInteger.valueOf(2_000L));
     }
 }
