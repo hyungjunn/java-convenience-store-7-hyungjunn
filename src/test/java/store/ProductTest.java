@@ -1,11 +1,13 @@
 package store;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,5 +107,15 @@ class ProductTest {
 
         assertThat(amount).isEqualTo(BigDecimal.valueOf(9_000L));
         assertThat(amount2).isEqualTo(BigDecimal.valueOf(0L));
+    }
+
+    @DisplayName("프로모션 미적용 금액의 30% 멤버십 할인한다.")
+    @Test
+    void membershipDiscountOnNotPromotionTest() {
+        Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 2L, 10L, Promotion.CARBONATE);
+
+        BigInteger amount = coke.membershipDiscountOnNotPromotion(12L);
+
+        assertThat(amount).isEqualTo(BigInteger.valueOf(3_000));
     }
 }

@@ -1,6 +1,8 @@
 package store;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class Product {
@@ -116,6 +118,14 @@ public class Product {
 
     public BigDecimal calculateAmountWithoutFixedPrice(Long purchaseQuantity) {
         return price.multiply(BigDecimal.valueOf(countQuantityWithoutFixedPrice(purchaseQuantity)));
+    }
+
+    // 프로모션 미적용 금액의 30% 멤버십 할인
+    public BigInteger membershipDiscountOnNotPromotion(Long purchaseQuantity) {
+        return calculateWithFixedPrice(purchaseQuantity)
+                .multiply(BigDecimal.valueOf(0.3))
+                .setScale(-3, RoundingMode.DOWN)
+                .toBigInteger();
     }
 
     public BigDecimal getPrice() {
