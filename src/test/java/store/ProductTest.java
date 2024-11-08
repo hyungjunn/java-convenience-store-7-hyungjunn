@@ -82,4 +82,17 @@ class ProductTest {
         assertThat(discount).isEqualTo(BigDecimal.valueOf(value));
     }
 
+    @DisplayName("프로모션 혜택없이 결제해야 하는 수량을 계산한다.")
+    @Test
+    void countNoBenefitQuantityTest() {
+        Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
+        Product NoPromotionalCoke = new Product("콜라", BigDecimal.valueOf(1_000L), 0L, 10L, Promotion.CARBONATE);
+
+        long count = coke.countNoBenefitQuantity(11L);
+        long count1 = NoPromotionalCoke.countNoBenefitQuantity(5L);
+
+        assertThat(count).isEqualTo(2L);
+        assertThat(count1).isEqualTo(5L);
+    }
+
 }

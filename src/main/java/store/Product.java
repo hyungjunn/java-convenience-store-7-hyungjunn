@@ -96,6 +96,15 @@ public class Product {
         return numberOfGiveaway;
     }
 
+    public long countNoBenefitQuantity(Long purchaseQuantity) {
+        int buyAndGet = promotion.extractBuyAndGet();
+        long countPromotionProduct = (promotionQuantity / buyAndGet) * buyAndGet;
+        if (purchaseQuantity > countPromotionProduct) {
+            return purchaseQuantity - countPromotionProduct;
+        }
+        return purchaseQuantity;
+    }
+
     public BigDecimal getPrice() {
         return price;
     }

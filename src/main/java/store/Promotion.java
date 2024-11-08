@@ -25,7 +25,7 @@ public enum Promotion {
         return date.isAfter(startDate) && date.isBefore(endDate);
     }
 
-    private int extractBuyAndGet() {
+    public int extractBuyAndGet() {
         return buy + get;
     }
 
