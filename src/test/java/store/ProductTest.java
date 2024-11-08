@@ -1,6 +1,5 @@
 package store;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -86,13 +85,25 @@ class ProductTest {
     @Test
     void countNoBenefitQuantityTest() {
         Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
-        Product NoPromotionalCoke = new Product("콜라", BigDecimal.valueOf(1_000L), 0L, 10L, Promotion.CARBONATE);
+        Product noPromotionalCoke = new Product("콜라", BigDecimal.valueOf(1_000L), 0L, 10L, Promotion.CARBONATE);
 
         long count = coke.countNoBenefitQuantity(11L);
-        long count1 = NoPromotionalCoke.countNoBenefitQuantity(5L);
+        long count1 = noPromotionalCoke.countNoBenefitQuantity(5L);
 
         assertThat(count).isEqualTo(2L);
         assertThat(count1).isEqualTo(5L);
     }
 
+    @DisplayName("정가로 결제해야하는 수량을 제외한 후 결제한다.")
+    @Test
+    void countQuantityWithoutFixedPriceTest() {
+        Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
+        Product noPromotionalCoke = new Product("콜라", BigDecimal.valueOf(1_000L), 0L, 10L, Promotion.CARBONATE);
+
+        BigDecimal amount = coke.calculateAmountWithoutFixedPrice(11L);
+        BigDecimal amount2 = noPromotionalCoke.calculateAmountWithoutFixedPrice(9L);
+
+        assertThat(amount).isEqualTo(BigDecimal.valueOf(9_000L));
+        assertThat(amount2).isEqualTo(BigDecimal.valueOf(0L));
+    }
 }

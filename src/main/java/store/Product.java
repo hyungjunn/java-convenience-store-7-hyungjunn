@@ -105,8 +105,17 @@ public class Product {
         return purchaseQuantity;
     }
 
+    // 주어진 수량을 정가로 계산한다.
     public BigDecimal calculateWithFixedPrice(Long purchaseQuantity) {
         return price.multiply(BigDecimal.valueOf(purchaseQuantity));
+    }
+
+    public long countQuantityWithoutFixedPrice(Long purchaseQuantity) {
+        return purchaseQuantity - countNoBenefitQuantity(purchaseQuantity);
+    }
+
+    public BigDecimal calculateAmountWithoutFixedPrice(Long purchaseQuantity) {
+        return price.multiply(BigDecimal.valueOf(countQuantityWithoutFixedPrice(purchaseQuantity)));
     }
 
     public BigDecimal getPrice() {
