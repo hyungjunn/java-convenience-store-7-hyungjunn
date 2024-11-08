@@ -24,4 +24,32 @@ public enum Promotion {
     public boolean isPromotionPeriod(LocalDate date) {
         return date.isAfter(startDate) && date.isBefore(endDate);
     }
+
+    private int extractBuyAndGet() {
+        return buy + get;
+    }
+
+    public boolean canApplyPromotion(int purchaseQuantity) {
+        return purchaseQuantity % extractBuyAndGet()  == buy;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getBuy() {
+        return buy;
+    }
+
+    public int getGet() {
+        return get;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 }

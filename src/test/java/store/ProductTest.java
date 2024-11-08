@@ -1,5 +1,6 @@
 package store;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -39,5 +40,32 @@ class ProductTest {
         assertThatThrownBy(() -> chocoBar.decreaseStock(10L, date))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+    }
+
+    @DisplayName("프로모션이 가능한 상품인지 판별한다.")
+    @Test
+    void canAppliedPromotion() {
+        Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
+        Product orangeJuice = new Product("오렌지주스", BigDecimal.valueOf(1_800L), 9L, 0L, Promotion.MD_RECOMMEND);
+        Product chocoBar = new Product("초코바", BigDecimal.valueOf(2_000L), 0L, 5L, null);
+
+        boolean cannotApply = coke.canApplyPromotion(3);
+        boolean cannotApply2 = coke.canApplyPromotion(4);
+        boolean canApply = coke.canApplyPromotion(5);
+
+        boolean cannotApply3 = orangeJuice.canApplyPromotion(4);
+        boolean canApply2 = orangeJuice.canApplyPromotion(5);
+
+        // 프로모션이 없는 경우
+        boolean canApplyPromotion = chocoBar.canApplyPromotion(3);
+
+        assertThat(cannotApply).isFalse();
+        assertThat(cannotApply2).isFalse();
+        assertThat(canApply).isTrue();
+
+        assertThat(cannotApply3).isFalse();
+        assertThat(canApply2).isTrue();
+
+        assertThat(canApplyPromotion).isFalse();
     }
 }

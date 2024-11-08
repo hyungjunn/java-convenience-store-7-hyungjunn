@@ -63,6 +63,13 @@ public class Product {
         return promotion == null;
     }
 
+    public boolean canApplyPromotion(int purchaseQuantity) {
+        if (promotion == null) {
+            return false;
+        }
+        return promotion.canApplyPromotion(purchaseQuantity);
+    }
+
     public BigDecimal getPrice() {
         return price;
     }
