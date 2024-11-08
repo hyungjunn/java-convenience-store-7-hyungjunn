@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ProductTest {
+    // TODO: 유지 보수 하기 힘든 코드. 한가지만 테스트하도록 분리하기!
     @DisplayName("상품 수량이 결제된 수량만큼 차감한다.")
     @Test
     void decreaseStockTest() {
