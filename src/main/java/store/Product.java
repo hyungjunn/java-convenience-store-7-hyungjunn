@@ -70,6 +70,32 @@ public class Product {
         return promotion.canApplyPromotion(purchaseQuantity);
     }
 
+    public BigDecimal applyPromotionDiscount(Long purchaseQuantity) {
+        long numberOfGiveaway = 0L;
+        if (purchaseQuantity <= promotionQuantity) {
+            return promotionDiscount(purchaseQuantity, numberOfGiveaway);
+        }
+        numberOfGiveaway = promotion.countNumberOfGiveaway(promotionQuantity);
+        return calculateDiscount(numberOfGiveaway);
+    }
+
+    private BigDecimal calculateDiscount(long numberOfGiveaway) {
+        return price.multiply(BigDecimal.valueOf(numberOfGiveaway));
+    }
+
+    private BigDecimal promotionDiscount(Long purchaseQuantity, long numberOfGiveaway) {
+        if (promotion.isApplyPromotion(purchaseQuantity)) {
+            numberOfGiveaway = countNumberOfGiveAway(purchaseQuantity);
+        }
+        return calculateDiscount(numberOfGiveaway);
+    }
+
+    private long countNumberOfGiveAway(Long purchaseQuantity) {
+        long numberOfGiveaway;
+        numberOfGiveaway = promotion.countNumberOfGiveaway(purchaseQuantity);
+        return numberOfGiveaway;
+    }
+
     public BigDecimal getPrice() {
         return price;
     }

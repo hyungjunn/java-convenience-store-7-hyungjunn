@@ -33,6 +33,14 @@ public enum Promotion {
         return purchaseQuantity % extractBuyAndGet()  == buy;
     }
 
+    public boolean isApplyPromotion(Long purchaseQuantity) {
+        return purchaseQuantity >= extractBuyAndGet();
+    }
+
+    public Long countNumberOfGiveaway(Long purchaseQuantity) {
+        return purchaseQuantity / extractBuyAndGet();
+    }
+
     public String getName() {
         return name;
     }
