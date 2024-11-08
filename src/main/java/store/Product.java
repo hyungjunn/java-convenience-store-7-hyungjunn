@@ -105,6 +105,10 @@ public class Product {
         return purchaseQuantity;
     }
 
+    public BigDecimal calculateWithFixedPrice(Long purchaseQuantity) {
+        return price.multiply(BigDecimal.valueOf(purchaseQuantity));
+    }
+
     public BigDecimal getPrice() {
         return price;
     }
