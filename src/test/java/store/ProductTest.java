@@ -113,10 +113,13 @@ class ProductTest {
     @Test
     void nonPromotionalMembershipDiscountTest() {
         Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 2L, 10L, Promotion.CARBONATE);
+        Product coke2 = new Product("콜라", BigDecimal.valueOf(1_000L), 2L, 30L, Promotion.CARBONATE);
 
         BigInteger amount = coke.nonPromotionalMembershipDiscount(12L);
+        BigInteger amount2 = coke2.nonPromotionalMembershipDiscount(30L);
 
         assertThat(amount).isEqualTo(BigInteger.valueOf(3_000));
+        assertThat(amount2).isEqualTo(BigInteger.valueOf(8_000)); // 30 * 100 * 3 => 9000
     }
 
     @DisplayName("프로모션 적용 후 남은 금액에 멤버십 할인 받는다.")

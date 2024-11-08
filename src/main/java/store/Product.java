@@ -122,10 +122,18 @@ public class Product {
 
     // 프로모션 미적용 금액의 30% 멤버십 할인
     public BigInteger nonPromotionalMembershipDiscount(Long purchaseQuantity) {
-        return calculateWithFixedPrice(purchaseQuantity)
+        BigInteger discount = calculateWithFixedPrice(purchaseQuantity)
                 .multiply(BigDecimal.valueOf(0.3))
                 .setScale(-3, RoundingMode.DOWN)
                 .toBigInteger();
+        return compareBetweenMaxMemberShipAnd(discount);
+    }
+
+    private static BigInteger compareBetweenMaxMemberShipAnd(BigInteger discount) {
+        if (discount.compareTo(BigInteger.valueOf(8000)) > 0) {
+            return BigInteger.valueOf(8000);
+        }
+        return discount;
     }
 
     // 프로모션 적용 후 남은 금액에 멤버십 할인
@@ -133,10 +141,11 @@ public class Product {
         BigDecimal totalAmount = price.multiply(BigDecimal.valueOf(purchaseQuantity));
         BigDecimal promotionDiscount = applyPromotionDiscount(purchaseQuantity);
         BigDecimal remainAmount = totalAmount.subtract(promotionDiscount);
-        return remainAmount
+        BigInteger discount = remainAmount
                 .multiply(BigDecimal.valueOf(0.3))
                 .setScale(-3, RoundingMode.DOWN)
                 .toBigInteger();
+        return compareBetweenMaxMemberShipAnd(discount);
     }
 
     public BigDecimal getPrice() {
