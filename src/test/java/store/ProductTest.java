@@ -1,6 +1,5 @@
 package store;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -52,15 +51,15 @@ class ProductTest {
         Product orangeJuice = new Product("오렌지주스", BigDecimal.valueOf(1_800L), 9L, 0L, Promotion.MD_RECOMMEND);
         Product chocoBar = new Product("초코바", BigDecimal.valueOf(2_000L), 0L, 5L, null);
 
-        boolean cannotApply = coke.canApplyPromotion(3);
-        boolean cannotApply2 = coke.canApplyPromotion(4);
-        boolean canApply = coke.canApplyPromotion(5);
+        boolean cannotApply = coke.canApplyPromotion(3L);
+        boolean cannotApply2 = coke.canApplyPromotion(4L);
+        boolean canApply = coke.canApplyPromotion(5L);
 
-        boolean cannotApply3 = orangeJuice.canApplyPromotion(4);
-        boolean canApply2 = orangeJuice.canApplyPromotion(5);
+        boolean cannotApply3 = orangeJuice.canApplyPromotion(4L);
+        boolean canApply2 = orangeJuice.canApplyPromotion(5L);
 
         // 프로모션이 없는 경우
-        boolean canApplyPromotion = chocoBar.canApplyPromotion(3);
+        boolean canApplyPromotion = chocoBar.canApplyPromotion(3L);
 
         assertThat(cannotApply).isFalse();
         assertThat(cannotApply2).isFalse();

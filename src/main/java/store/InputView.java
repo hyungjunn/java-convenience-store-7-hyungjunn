@@ -79,4 +79,16 @@ public class InputView {
         }
         throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
     }
+
+    public boolean readWantedAddBenefitProduct(String name, int quantity) {
+        System.out.println("현재 " + name + "은(는) " + quantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+        String line = Console.readLine();
+        if ("Y".equals(line)) {
+            return true;
+        }
+        if ("N".equals(line)) {
+            return false;
+        }
+        throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
+    }
 }

@@ -20,21 +20,40 @@ public class ConvenienceSystem {
         // ex. [{사이다, 3}, {감자칩, 1}]
         List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
         for (PurchaseProduct purchaseProduct : purchaseProducts) {
-            Product product = convenience.findProduct(purchaseProduct.name());
+            String purchaseProductName = purchaseProduct.name();
             Long purchaseQuantity = purchaseProduct.quantity();
-            long noBenefitQuantity = product.countNoBenefitQuantity(purchaseQuantity);
-            boolean wantedNoPromotionBenefit = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
-            if (wantedNoPromotionBenefit) {
-                // Y: 일부 수량에 대해 정가로 결제한다.
-                // 1. 프로모션 적용된 수량 만큼 적용해서 결제
-                // 2. 그 이후 일부 수량에 대해 정가로 결제
-                BigDecimal promotionDiscount = product.applyPromotionDiscount(purchaseQuantity);// 프로모션 할인 금액
-                BigDecimal regularPaymentAmount = product.calculateWithFixedPrice(noBenefitQuantity);// 일부 수량만큼 정가 결제 금액
+            Product product = convenience.findProduct(purchaseProductName);
+
+            // 일부 수량에 대해 정가로 구매할건지 안내 메시지
+            if (product.isPromotionalOutOfStock(purchaseQuantity, product.getPromotion().getBuy())) {
+                long noBenefitQuantity = product.countNoBenefitQuantity(purchaseQuantity);
+                boolean wantedNoPromotionBenefit = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
+                if (wantedNoPromotionBenefit) {
+                    // Y: 일부 수량에 대해 정가로 결제한다.
+                    // 1. 프로모션 적용된 수량 만큼 적용해서 결제
+                    // 2. 그 이후 일부 수량에 대해 정가로 결제
+                    BigDecimal promotionDiscount = product.applyPromotionDiscount(purchaseQuantity);// 프로모션 할인 금액
+                    BigDecimal regularPaymentAmount = product.calculateWithFixedPrice(noBenefitQuantity);// 일부 수량만큼 정가 결제 금액
+                }
+                // N: 정가로 결제해야하는 수량만큼 제외한 후 결제를 진행한다.
+                if (!wantedNoPromotionBenefit) {
+                    BigDecimal amountWithoutFixedPrice = product.calculateAmountWithoutFixedPrice(purchaseQuantity);// 정가 결제 수량 제외한 결제 금액
+                }
             }
-            // N: 정가로 결제해야하는 수량만큼 제외한 후 결제를 진행한다.
-            if (!wantedNoPromotionBenefit) {
-                BigDecimal amountWithoutFixedPrice = product.calculateAmountWithoutFixedPrice(purchaseQuantity);// 정가 결제 수량 제외한 결제 금액
+
+
+            // 증정 혜택 안내 메시지
+            if (product.canApplyPromotion(purchaseQuantity)) {
+                int presentedQuantity = product.getPromotion().getGet();
+                boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, presentedQuantity);
+                if (wantedAddBenefitProduct) {
+                    purchaseQuantity += presentedQuantity;
+                }
             }
+
+
+
+
 
         }
     }

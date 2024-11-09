@@ -29,7 +29,7 @@ public enum Promotion {
         return buy + get;
     }
 
-    public boolean canApplyPromotion(int purchaseQuantity) {
+    public boolean canApplyPromotion(Long purchaseQuantity) {
         return purchaseQuantity % extractBuyAndGet()  == buy;
     }
 
@@ -37,6 +37,7 @@ public enum Promotion {
         return purchaseQuantity >= extractBuyAndGet();
     }
 
+    // 증정할 수 있는 갯수
     public Long countNumberOfGiveaway(Long purchaseQuantity) {
         return purchaseQuantity / extractBuyAndGet();
     }

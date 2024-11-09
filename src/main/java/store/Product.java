@@ -110,7 +110,8 @@ public class Product {
         return promotion == null;
     }
 
-    public boolean canApplyPromotion(int purchaseQuantity) {
+    // 증정 혜택을 받을 수 있는지
+    public boolean canApplyPromotion(Long purchaseQuantity) {
         if (promotion == null) {
             return false;
         }
@@ -145,11 +146,18 @@ public class Product {
 
     public long countNoBenefitQuantity(Long purchaseQuantity) {
         int buyAndGet = promotion.extractBuyAndGet();
-        long countPromotionProduct = (promotionQuantity / buyAndGet) * buyAndGet;
-        if (purchaseQuantity > countPromotionProduct) {
-            return purchaseQuantity - countPromotionProduct;
+        if (isPromotionalOutOfStock(purchaseQuantity, buyAndGet)) {
+            return purchaseQuantity - countPromotionProduct(buyAndGet);
         }
         return purchaseQuantity;
+    }
+
+    private long countPromotionProduct(int buyAndGet) {
+        return (promotionQuantity / buyAndGet) * buyAndGet;
+    }
+
+    public  boolean isPromotionalOutOfStock(Long purchaseQuantity, int buyAndGet) {
+        return purchaseQuantity > countPromotionProduct(buyAndGet);
     }
 
     // 주어진 수량을 정가로 계산한다.
@@ -174,7 +182,7 @@ public class Product {
         return compareBetweenMaxMemberShipAnd(discount);
     }
 
-    private static BigInteger compareBetweenMaxMemberShipAnd(BigInteger discount) {
+    private BigInteger compareBetweenMaxMemberShipAnd(BigInteger discount) {
         if (discount.compareTo(BigInteger.valueOf(8000)) > 0) {
             return BigInteger.valueOf(8000);
         }
