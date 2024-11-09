@@ -70,6 +70,7 @@ public class InputView {
 
     public boolean readWantedNoPromotionBenefit(Product product, Long quantity) {
         System.out.println("현재 " + product.getName() + " " + product.countNoBenefitQuantity(quantity) + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+        // TODO: while 문 반복
         String line = Console.readLine();
         if ("Y".equals(line)) {
             return true;
