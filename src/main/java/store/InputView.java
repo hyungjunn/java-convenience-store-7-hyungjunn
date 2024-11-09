@@ -15,15 +15,23 @@ public class InputView {
             String nameAndQuantity = string.substring(1, string.length() -1);
             String[] productDetail = nameAndQuantity.split("-");
             String name = productDetail[0];
-            validateExistProduct(storeRoom, name);
+            Product product = storeRoom.findByName(name);
+            validateExist(product);
             long quantity = Long.parseLong(productDetail[1]);
+            validateExceedQuantity(quantity, product);
             purchaseProducts.add(new PurchaseProduct(name, quantity));
         }
         return purchaseProducts;
     }
 
-    private static void validateExistProduct(StoreRoom storeRoom, String name) {
-        if (storeRoom.findByName(name) == null) {
+    private static void validateExceedQuantity(long quantity, Product product) {
+        if (quantity > product.getQuantity()) {
+            throw new IllegalArgumentException("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+        }
+    }
+
+    private static void validateExist(Product product) {
+        if (product == null) {
             throw new IllegalArgumentException("[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.");
         }
     }

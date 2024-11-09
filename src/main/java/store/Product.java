@@ -197,6 +197,10 @@ public class Product {
         return this.name.equals(name);
     }
 
+    public long getQuantity() {
+        return promotionQuantity + generalQuantity;
+    }
+
     public String getName() {
         return name;
     }
