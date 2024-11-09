@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InputView {
-    public List<PurchaseProduct> readProductDetail(StoreRoom storeRoom) {
+    public List<PurchaseProduct> readProductDetail(Convenience convenience) {
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
         String line = enterPurchaseProductDetail();
         List<PurchaseProduct> purchaseProducts = new ArrayList<>();
@@ -15,7 +15,7 @@ public class InputView {
             String nameAndQuantity = string.substring(1, string.length() -1);
             String[] productDetail = nameAndQuantity.split("-");
             String name = productDetail[0];
-            Product product = storeRoom.findByName(name);
+            Product product = convenience.findProduct(name);
             validateExist(product);
             long quantity = Long.parseLong(productDetail[1]);
             validateExceedQuantity(quantity, product);
@@ -66,5 +66,17 @@ public class InputView {
         if (line == null || line.isBlank()) {
             throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
         }
+    }
+
+    public boolean readWantedNoPromotionBenefit(Product product, Long quantity) {
+        System.out.println("현재 " + product.getName() + " " + product.countNoBenefitQuantity(quantity) + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+        String line = Console.readLine();
+        if ("Y".equals(line)) {
+            return true;
+        }
+        if ("N".equals(line)) {
+            return false;
+        }
+        throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
     }
 }

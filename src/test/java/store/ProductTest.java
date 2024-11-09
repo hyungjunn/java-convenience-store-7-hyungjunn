@@ -98,7 +98,7 @@ class ProductTest {
 
     @DisplayName("정가로 결제해야하는 수량을 제외한 후 결제한다.")
     @Test
-    void countQuantityWithoutFixedPriceTest() {
+    void calculateAmountWithoutFixedPriceTest() {
         Product coke = new Product("콜라", BigDecimal.valueOf(1_000L), 10L, 10L, Promotion.CARBONATE);
         Product noPromotionalCoke = new Product("콜라", BigDecimal.valueOf(1_000L), 0L, 10L, Promotion.CARBONATE);
 

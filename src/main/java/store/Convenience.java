@@ -4,19 +4,18 @@ import java.util.List;
 
 public class Convenience {
     private final StoreRoom storeRoom;
-    private final OutputView outputView;
-    private final InputView inputView;
 
     public Convenience(StoreRoom storeRoom) {
         this.storeRoom = storeRoom;
-        this.outputView = new OutputView();
-        this.inputView = new InputView();
     }
 
-    public void productGuide() {
+    public List<Product> findAll() {
         storeRoom.save();
-        List<Product> products = storeRoom.readAll();
-        outputView.printProductList(products);
-        List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(storeRoom); // TODO: 디테일 입력 검증
+        return storeRoom.readAll();
     }
+
+    public Product findProduct(String name) {
+        return storeRoom.findByName(name);
+    }
+
 }
