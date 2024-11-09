@@ -15,7 +15,7 @@ public class Product {
     public Product(ProductBuilder builder) {
         this.name = builder.name;
         this.price = builder.price;
-        this.promotionQuantity = builder.promotionQuantity;
+        this.promotionQuantity = 0L;
         this.generalQuantity = 0L;
         this.promotion = builder.promotion;
     }
@@ -207,6 +207,11 @@ public class Product {
 
     public long getQuantity() {
         return promotionQuantity + generalQuantity;
+    }
+
+    // TODO: null 포인터 고려!
+    public int getGet() {
+        return promotion.getBuy();
     }
 
     public String getName() {
