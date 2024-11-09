@@ -10,7 +10,52 @@ public class Product {
     private final BigDecimal price;
     private Long promotionQuantity;
     private Long generalQuantity;
-    private final Promotion promotion;
+    private Promotion promotion;
+
+    public Product(ProductBuilder builder) {
+        this.name = builder.name;
+        this.price = builder.price;
+        this.promotionQuantity = builder.promotionQuantity;
+        this.generalQuantity = 0L;
+        this.promotion = builder.promotion;
+    }
+
+    public static class ProductBuilder {
+        private String name;
+        private BigDecimal price;
+        private Long promotionQuantity;
+        private Long generalQuantity;
+        private Promotion promotion;
+
+        public ProductBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ProductBuilder price(BigDecimal price) {
+            this.price = price;
+            return this;
+        }
+
+        public ProductBuilder promotionQuantity(Long promotionQuantity) {
+            this.promotionQuantity = promotionQuantity;
+            return this;
+        }
+
+        public ProductBuilder generalQuantity(Long generalQuantity) {
+            this.generalQuantity = generalQuantity;
+            return this;
+        }
+
+        public ProductBuilder promotion(Promotion promotion) {
+            this.promotion = promotion;
+            return this;
+        }
+
+        public Product build() {
+            return new Product(this);
+        }
+    }
 
     public Product(
             String name,
@@ -148,6 +193,14 @@ public class Product {
         return compareBetweenMaxMemberShipAnd(discount);
     }
 
+    public boolean isProductName(String name) {
+        return this.name.equals(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public BigDecimal getPrice() {
         return price;
     }
@@ -162,5 +215,28 @@ public class Product {
 
     public Promotion getPromotion() {
         return promotion;
+    }
+
+    public void setPromotionQuantity(Long promotionQuantity) {
+        this.promotionQuantity = promotionQuantity;
+    }
+
+    public void setGeneralQuantity(Long generalQuantity) {
+        this.generalQuantity = generalQuantity;
+    }
+
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+               "name='" + name + '\'' +
+               ", price=" + price +
+               ", promotionQuantity=" + promotionQuantity +
+               ", generalQuantity=" + generalQuantity +
+               ", promotion=" + promotion +
+               '}';
     }
 }

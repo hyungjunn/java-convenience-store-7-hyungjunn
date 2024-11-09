@@ -41,6 +41,17 @@ public enum Promotion {
         return purchaseQuantity / extractBuyAndGet();
     }
 
+    public static Promotion findByName(String promotionName) {
+        Promotion promotion = null;
+        Promotion[] values = Promotion.values();
+        for (Promotion value : values) {
+            if (value.name.equals(promotionName)) {
+                promotion = value;
+            }
+        }
+        return promotion;
+    }
+
     public String getName() {
         return name;
     }
