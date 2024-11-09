@@ -70,26 +70,28 @@ public class InputView {
 
     public boolean readWantedNoPromotionBenefit(Product product, Long quantity) {
         System.out.println("현재 " + product.getName() + " " + product.countNoBenefitQuantity(quantity) + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
-        // TODO: while 문 반복
-        String line = Console.readLine();
-        if ("Y".equals(line)) {
-            return true;
+        return yesOrNo();
+    }
+
+    private boolean yesOrNo() {
+        while(true) {
+            try {
+                String line = Console.readLine();
+                if ("Y".equals(line)) {
+                    return true;
+                }
+                if ("N".equals(line)) {
+                    return false;
+                }
+                throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
         }
-        if ("N".equals(line)) {
-            return false;
-        }
-        throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
     }
 
     public boolean readWantedAddBenefitProduct(String name, int quantity) {
         System.out.println("현재 " + name + "은(는) " + quantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
-        String line = Console.readLine();
-        if ("Y".equals(line)) {
-            return true;
-        }
-        if ("N".equals(line)) {
-            return false;
-        }
-        throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
+        return yesOrNo();
     }
 }
