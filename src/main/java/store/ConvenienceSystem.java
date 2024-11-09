@@ -36,6 +36,8 @@ public class ConvenienceSystem {
                 purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
             }
         }
+        boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
+        
     }
 
 }

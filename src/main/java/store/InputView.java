@@ -94,4 +94,9 @@ public class InputView {
         System.out.println("현재 " + name + "은(는) " + quantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
         return yesOrNo();
     }
+
+    public boolean readWantedMembershipDiscount() {
+        System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
+        return yesOrNo();
+    }
 }
