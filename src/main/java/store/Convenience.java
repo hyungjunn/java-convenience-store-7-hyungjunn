@@ -17,6 +17,6 @@ public class Convenience {
         storeRoom.save();
         List<Product> products = storeRoom.readAll();
         outputView.printProductList(products);
-        List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(); // TODO: 디테일 입력 검증
+        List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(storeRoom); // TODO: 디테일 입력 검증
     }
 }
