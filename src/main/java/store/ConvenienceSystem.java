@@ -75,7 +75,7 @@ public class ConvenienceSystem {
             // 최종 금액
             finalAmount = totalAmount.subtract(new BigDecimal(membershipDiscountAmount));
 
-            System.out.println("==============W 편의점================"); // 길이 35
+            System.out.println("==============W 편의점================");
             System.out.format("%-17s %-8s %-6s%n", "상품명", "수량", "금액");
             DecimalFormat df = new DecimalFormat("#,###");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
@@ -84,7 +84,6 @@ public class ConvenienceSystem {
                 totalQuantity += purchaseQuantity;
                 BigDecimal totalPrice = convenience.determineTotalPriceForPurchaseQuantity(purchaseProductName, purchaseQuantity);
                 System.out.printf("%-17s %-8s %-6s%n", purchaseProductName, purchaseQuantity, df.format(totalPrice));
-                // System.out.println(purchaseProductName + "     " + purchaseQuantity + "    " + df.format(totalPrice));
             }
             System.out.println("=============증     정===============");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
