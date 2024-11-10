@@ -96,9 +96,9 @@ public class ConvenienceSystem {
             }
             System.out.println("====================================");
             System.out.println("총구매액" + "          " + totalQuantity + "           " + df.format(totalAmount));
-            System.out.println("eventDiscountAmount = -" + df.format(eventDiscountAmount));
-            System.out.println("membershipDiscountAmount = -" + df.format(membershipDiscountAmount));
-            System.out.println("내실돈 " + df.format(finalAmount));
+            System.out.println("행사할인              -" + df.format(eventDiscountAmount));
+            System.out.println("멤버십할인 =           -" + df.format(membershipDiscountAmount));
+            System.out.println("내실돈                " + df.format(finalAmount));
 
             boolean wantedPurchaseOther = inputView.readWantedPurchaseOther();
             if (wantedPurchaseOther) {
