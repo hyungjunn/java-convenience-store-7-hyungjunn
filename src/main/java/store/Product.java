@@ -112,10 +112,17 @@ public class Product {
 
     // 증정 혜택을 받을 수 있는지
     public boolean canApplyPromotion(Long purchaseQuantity) {
-        if (promotion == null) {
+        if (isNotAppliedPromotion()) {
             return false;
         }
         return promotion.canApplyPromotion(purchaseQuantity);
+    }
+
+    public boolean isApplyPromotion(Long purchaseQuantity) {
+        if (isNotAppliedPromotion()) {
+            return false;
+        }
+        return promotion.isApplyPromotion(purchaseQuantity);
     }
 
     public BigDecimal applyPromotionDiscount(Long purchaseQuantity) {
@@ -138,9 +145,17 @@ public class Product {
         return calculateDiscount(numberOfGiveaway);
     }
 
-    private long countNumberOfGiveAway(Long purchaseQuantity) {
-        long numberOfGiveaway;
-        numberOfGiveaway = promotion.countNumberOfGiveaway(purchaseQuantity);
+    public long countNumberOfGiveAway(Long purchaseQuantity) {
+        long numberOfGiveaway = 0L;
+        if (promotion == null) {
+            return 0L;
+        }
+        if (purchaseQuantity <= promotionQuantity) {
+            numberOfGiveaway = promotion.countNumberOfGiveaway(purchaseQuantity);
+        }
+        if (purchaseQuantity > promotionQuantity) {
+            numberOfGiveaway = promotion.countNumberOfGiveaway(promotionQuantity);
+        }
         return numberOfGiveaway;
     }
 

@@ -33,7 +33,7 @@ public class PurchaseProduct {
     }
 
     // 증정 혜택 안내 메시지
-    public void notifyGiftBenefitMessage(int presentedQuantity, boolean wantedAddBenefitProduct) {
+    public void notifyGiftBenefitMessage(long presentedQuantity, boolean wantedAddBenefitProduct) {
         if (wantedAddBenefitProduct) {
             purchaseQuantity += presentedQuantity;
         }
