@@ -5,7 +5,6 @@ import camp.nextstep.edu.missionutils.DateTimes;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.List;
 
 public class ConvenienceSystem {
@@ -26,11 +25,10 @@ public class ConvenienceSystem {
             List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
 
             long presentedQuantity;
-            long totalQuantity = 0L;
             BigDecimal totalAmount = BigDecimal.ZERO;
             BigDecimal eventDiscountAmount = BigDecimal.ZERO;
             BigInteger membershipDiscountAmount = BigInteger.ZERO;
-            BigDecimal finalAmount;
+            BigDecimal finalAmount = BigDecimal.ZERO;
 
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
                 String purchaseProductName = purchaseProduct.getName();
@@ -40,8 +38,9 @@ public class ConvenienceSystem {
                 totalAmount = totalAmount.add(totalByProduct);
 
                 // TODO: 구매 수량관련 로직과 상품 재고 감소로직은 하나의 트랜잭션으로 적용시켜야함. 다 완성된 후 항상 확인
-                if (product.getPromotion() != null && product.isPromotionalOutOfStock(purchaseQuantity, product.getGet())) {
+                if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
                     boolean wantedNoPromotionBenefit = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
+                    // TODO: (중요!!!)totalAmount 값이 바뀌게 되어 영수증에 바뀌어진 금액이 들어옴.
                     totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedNoPromotionBenefit, totalAmount);
                 }
                 product.decreaseStock(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
@@ -61,9 +60,9 @@ public class ConvenienceSystem {
 
                 if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
                     eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
-                    totalAmount = totalAmount.subtract(eventDiscountAmount);
+                    // totalAmount = totalAmount.subtract(eventDiscountAmount);
+                    finalAmount = finalAmount.subtract(eventDiscountAmount);
                 }
-
             }
 
             // 멤버쉽 할인
@@ -73,32 +72,21 @@ public class ConvenienceSystem {
             }
 
             // 최종 금액
-            finalAmount = totalAmount.subtract(new BigDecimal(membershipDiscountAmount));
+            finalAmount = finalAmount.add(totalAmount.subtract(new BigDecimal(membershipDiscountAmount)));
 
             System.out.println("==============W 편의점================");
-            System.out.format("%-17s %-8s %-6s%n", "상품명", "수량", "금액");
-            DecimalFormat df = new DecimalFormat("#,###");
-            for (PurchaseProduct purchaseProduct : purchaseProducts) {
-                String purchaseProductName = purchaseProduct.getName();
-                Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
-                totalQuantity += purchaseQuantity;
-                BigDecimal totalPrice = convenience.determineTotalPriceForPurchaseQuantity(purchaseProductName, purchaseQuantity);
-                System.out.printf("%-17s %-8s %-6s%n", purchaseProductName, purchaseQuantity, df.format(totalPrice));
-            }
+            outputView.printThreeTitle("상품명", "수량", "금액");
+            long totalQuantity = countTotalQuantity(purchaseProducts);
             System.out.println("=============증     정===============");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
                 String purchaseProductName = purchaseProduct.getName();
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
                 if (numberOfGiveaway != 0) {
-                    System.out.printf("%-17s %-8s%n", purchaseProductName, numberOfGiveaway);
+                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway);
                 }
             }
-            System.out.println("====================================");
-            System.out.printf("%-17s %-8s %-6s%n", "총구매액", totalQuantity, df.format(totalAmount));
-            System.out.printf("%-17s %s%n", "행사할인", "-" + df.format(eventDiscountAmount));
-            System.out.printf("%-17s %s%n", "멤버십할인", "-" + df.format(membershipDiscountAmount));
-            System.out.printf("%-17s %s%n", "내실돈", df.format(finalAmount));
+            outputView.printAboutAmount(totalQuantity, totalAmount, eventDiscountAmount, membershipDiscountAmount, finalAmount);
 
             boolean wantedPurchaseOther = inputView.readWantedPurchaseOther();
             if (wantedPurchaseOther) {
@@ -106,5 +94,17 @@ public class ConvenienceSystem {
             }
             break;
         }
+    }
+
+    private long countTotalQuantity(List<PurchaseProduct> purchaseProducts) {
+        long totalQuantity = 0L;
+        for (PurchaseProduct purchaseProduct : purchaseProducts) {
+            String purchaseProductName = purchaseProduct.getName();
+            Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
+            totalQuantity += purchaseQuantity;
+            BigDecimal totalPrice = convenience.determineTotalPriceForPurchaseQuantity(purchaseProductName, purchaseQuantity);
+            outputView.printThreeColumn(purchaseProductName, purchaseQuantity, totalPrice);
+        }
+        return totalQuantity;
     }
 }

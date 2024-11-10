@@ -12,7 +12,7 @@ public class PurchaseProduct {
     }
 
     public BigDecimal notifyRegularPaymentSomeQuantities(Product product, boolean wantedNoPromotionBenefit, BigDecimal totalAmount) {
-        if (product.isPromotionalOutOfStock(purchaseQuantity, product.getPromotion().getBuy())) {
+        if (product.isPromotionalOutOfStock(purchaseQuantity)) {
             // Y: 일부 수량에 대해 정가로 결제한다.
             if (wantedNoPromotionBenefit) {
                 BigDecimal promotionDiscount = product.applyPromotionDiscount(purchaseQuantity);// 프로모션 할인 금액 <<< 영수증 정보
@@ -30,6 +30,10 @@ public class PurchaseProduct {
         if (wantedAddBenefitProduct) {
             purchaseQuantity += presentedQuantity;
         }
+    }
+
+    public long countTotalQuantity(long totalQuantity) {
+        return totalQuantity + purchaseQuantity;
     }
 
     public String getName() {

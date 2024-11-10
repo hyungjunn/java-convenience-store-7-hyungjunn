@@ -49,7 +49,7 @@ class ApplicationTest extends NsTest {
     void 실행_결과_예시_첫_번째_구매() {
         assertSimpleTest(() -> {
             run("[콜라-3],[에너지바-5]", "Y", "N");
-            assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000");
+            assertThat(output().replaceAll("\\s", "")).contains("총구매액813,000", "내실돈9,000");
         });
     }
 
@@ -57,7 +57,7 @@ class ApplicationTest extends NsTest {
     void 실행_결과_예시_두_번째_구매() {
         assertSimpleTest(() -> {
             run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "N");
-            assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000", "내실돈8,000");
+            assertThat(output().replaceAll("\\s", "")).contains("총구매액1010,000", "내실돈9,000", "내실돈8,000");
         });
     }
 

@@ -110,6 +110,10 @@ public class Product {
         return promotion == null;
     }
 
+    public boolean isAppliedPromotion() {
+        return promotion != null;
+    }
+
     // 증정 혜택을 받을 수 있는지
     public boolean canApplyPromotion(Long purchaseQuantity, LocalDate date) {
         if (isNotAppliedPromotion()) {
@@ -170,7 +174,7 @@ public class Product {
 
     public long countNoBenefitQuantity(Long purchaseQuantity) {
         int buyAndGet = promotion.extractBuyAndGet();
-        if (isPromotionalOutOfStock(purchaseQuantity, buyAndGet)) {
+        if (isPromotionalOutOfStock(purchaseQuantity)) {
             return purchaseQuantity - countPromotionProduct(buyAndGet);
         }
         return purchaseQuantity;
@@ -180,8 +184,8 @@ public class Product {
         return (promotionQuantity / buyAndGet) * buyAndGet;
     }
 
-    public  boolean isPromotionalOutOfStock(Long purchaseQuantity, int buyAndGet) {
-        return purchaseQuantity > countPromotionProduct(buyAndGet);
+    public  boolean isPromotionalOutOfStock(Long purchaseQuantity) {
+        return purchaseQuantity > countPromotionProduct(promotion.extractBuyAndGet());
     }
 
     // 주어진 수량을 정가로 계산한다.

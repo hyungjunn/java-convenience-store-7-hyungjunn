@@ -15,7 +15,7 @@ public class InputView {
                 validateProductDetail(line);
                 String[] strings = line.split(",");
                 for (String string : strings) {
-                    PurchaseProduct purchaseProduct = getPurchaseProduct(convenience, string);
+                    PurchaseProduct purchaseProduct = convertToPurchaseProductObj(convenience, string);
                     purchaseProducts.add(purchaseProduct);
                 }
                 return purchaseProducts;
@@ -25,7 +25,7 @@ public class InputView {
         }
     }
 
-    private static PurchaseProduct getPurchaseProduct(Convenience convenience, String string) {
+    private static PurchaseProduct convertToPurchaseProductObj(Convenience convenience, String string) {
         String nameAndQuantity = string.substring(1, string.length() - 1);
         String[] productDetail = nameAndQuantity.split("-");
         String name = productDetail[0];
