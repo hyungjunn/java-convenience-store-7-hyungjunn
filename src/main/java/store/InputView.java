@@ -8,20 +8,32 @@ import java.util.List;
 public class InputView {
     public List<PurchaseProduct> readProductDetail(Convenience convenience) {
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
-        String line = enterPurchaseProductDetail();
-        List<PurchaseProduct> purchaseProducts = new ArrayList<>();
-        String[] strings = line.split(",");
-        for (String string : strings) {
-            String nameAndQuantity = string.substring(1, string.length() -1);
-            String[] productDetail = nameAndQuantity.split("-");
-            String name = productDetail[0];
-            Product product = convenience.findProduct(name);
-            validateExist(product);
-            long quantity = Long.parseLong(productDetail[1]);
-            validateExceedQuantity(quantity, product);
-            purchaseProducts.add(new PurchaseProduct(name, quantity));
+        while (true) {
+            try {
+                List<PurchaseProduct> purchaseProducts = new ArrayList<>();
+                String line = Console.readLine();
+                validateProductDetail(line);
+                String[] strings = line.split(",");
+                for (String string : strings) {
+                    PurchaseProduct purchaseProduct = getPurchaseProduct(convenience, string);
+                    purchaseProducts.add(purchaseProduct);
+                }
+                return purchaseProducts;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
         }
-        return purchaseProducts;
+    }
+
+    private static PurchaseProduct getPurchaseProduct(Convenience convenience, String string) {
+        String nameAndQuantity = string.substring(1, string.length() - 1);
+        String[] productDetail = nameAndQuantity.split("-");
+        String name = productDetail[0];
+        Product product = convenience.findProduct(name);
+        validateExist(product);
+        long quantity = Long.parseLong(productDetail[1]);
+        validateExceedQuantity(quantity, product);
+        return new PurchaseProduct(name, quantity);
     }
 
     private static void validateExceedQuantity(long quantity, Product product) {
@@ -34,20 +46,6 @@ public class InputView {
         if (product == null) {
             throw new IllegalArgumentException("[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.");
         }
-    }
-
-    private static String enterPurchaseProductDetail() {
-        String line;
-        while(true) {
-            try {
-                line = Console.readLine();
-                validateProductDetail(line);
-                break;
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        return line;
     }
 
     private static void validateProductDetail(String line) {
@@ -74,7 +72,7 @@ public class InputView {
     }
 
     private boolean yesOrNo() {
-        while(true) {
+        while (true) {
             try {
                 String line = Console.readLine();
                 if ("Y".equals(line)) {
