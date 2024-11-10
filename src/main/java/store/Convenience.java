@@ -18,4 +18,9 @@ public class Convenience {
         return storeRoom.findByName(name);
     }
 
+    public long determineGiftItemCount(String purchaseProductName, long purchaseQuantity) {
+        Product product = findProduct(purchaseProductName);
+        return product.countNumberOfGiveAway(purchaseQuantity);
+    }
+
 }
