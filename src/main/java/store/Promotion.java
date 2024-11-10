@@ -38,7 +38,7 @@ public enum Promotion {
     }
 
     // 증정할 수 있는 갯수
-    public long countNumberOfGiveaway(long purchaseQuantity) {
+    public long countNumberOfFreeGift(long purchaseQuantity) {
         int buyAndGet = extractBuyAndGet();
         if (purchaseQuantity >= buyAndGet) {
             return purchaseQuantity / buyAndGet;

@@ -20,7 +20,7 @@ public class ConvenienceSystem {
 
     public void productGuide() {
         List<Product> products = convenience.findAll();
-        while(true) {
+        while (true) {
             outputView.printProductList(products);
             List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
 
@@ -41,24 +41,19 @@ public class ConvenienceSystem {
                     eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
                 }
 
-                // TODO: 구매 수량관련 로직과 상품 재고 감소로직은 하나의 트랜잭션으로 적용시켜야함. 다 완성된 후 항상 확인
                 if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
                     boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
                     totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
                 }
-                product.decreaseStock(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
 
                 if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
                     long promotionGetQuantity = product.getPromotion().getGet();
                     boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
                     presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
                     purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
-                    // 혜택을 받기 위해 추가한 상품 갯수만큼 재고에서 감소시킴
                     product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
-                    // totalAmount 에 증정 상품의 금액만큼 더해준다.
                     totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
                     eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
-                    // totalAmount = totalAmount.subtract(eventDiscountAmount);
                 }
             }
 
@@ -78,8 +73,9 @@ public class ConvenienceSystem {
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
                 if (numberOfGiveaway != 0) {
-                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway); // TODO: 수량 계산 제대로 안되는 문제 발생!
+                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway);
                 }
+                convenience.decreaseStock(purchaseProductName, purchaseQuantity);
             }
             outputView.printAboutAmount(totalQuantity, totalAmount, eventDiscountAmount, membershipDiscountAmount, finalAmount);
 

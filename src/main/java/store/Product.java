@@ -143,7 +143,7 @@ public class Product {
         if (promotionQuantity == 0) {
             return BigDecimal.ZERO;
         }
-        numberOfGiveaway = promotion.countNumberOfGiveaway(promotionQuantity);
+        numberOfGiveaway = promotion.countNumberOfFreeGift(promotionQuantity);
         return calculateDiscount(numberOfGiveaway);
     }
 
@@ -164,10 +164,10 @@ public class Product {
             return 0L;
         }
         if (purchaseQuantity <= promotionQuantity) {
-            numberOfGiveaway = promotion.countNumberOfGiveaway(purchaseQuantity);
+            numberOfGiveaway = promotion.countNumberOfFreeGift(purchaseQuantity);
         }
         if (purchaseQuantity > promotionQuantity) {
-            numberOfGiveaway = promotion.countNumberOfGiveaway(promotionQuantity);
+            numberOfGiveaway = promotion.countNumberOfFreeGift(promotionQuantity);
         }
         return numberOfGiveaway;
     }
