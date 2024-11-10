@@ -53,13 +53,13 @@ class ApplicationTest extends NsTest {
         });
     }
 
-    // @Test
-    // void 실행_결과_두_번째_구매() {
-    //     assertSimpleTest(() -> {
-    //         run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "N");
-    //         assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000", "내실돈8,000");
-    //     });
-    // }
+    @Test
+    void 실행_결과_두_번째_구매() {
+        assertSimpleTest(() -> {
+            run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000", "내실돈8,000");
+        });
+    }
 
     @Test
     void 기간에_해당하지_않는_프로모션_적용() {
