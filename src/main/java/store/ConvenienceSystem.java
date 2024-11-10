@@ -82,8 +82,8 @@ public class ConvenienceSystem {
                 String purchaseProductName = purchaseProduct.getName();
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 totalQuantity += purchaseQuantity;
-                Product product = convenience.findProduct(purchaseProductName);
-                System.out.println(purchaseProductName + "     " + purchaseQuantity + "    " + df.format(product.calculateWithFixedPrice(purchaseQuantity)));
+                BigDecimal totalPrice = convenience.determineTotalPriceForPurchaseQuantity(purchaseProductName, purchaseQuantity);
+                System.out.println(purchaseProductName + "     " + purchaseQuantity + "    " + df.format(totalPrice));
             }
             System.out.println("=============증     정===============");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
