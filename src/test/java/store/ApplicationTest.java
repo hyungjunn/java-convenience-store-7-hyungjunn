@@ -62,6 +62,14 @@ class ApplicationTest extends NsTest {
     }
 
     @Test
+    void 실행_결과_세_번째_구매() {
+        assertSimpleTest(() -> {
+            run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "Y", "[오렌지주스-1]", "Y", "Y", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000", "내실돈8,000", "내실돈1,800");
+        });
+    }
+
+    @Test
     void 기간에_해당하지_않는_프로모션_적용() {
         assertNowTest(() -> {
             run("[감자칩-2]", "N", "N");

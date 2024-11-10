@@ -56,10 +56,12 @@ public class ConvenienceSystem {
                     // totalAmount 에 증정 상품의 금액만큼 더해준다.
                     totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
                     eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
+                    totalAmount = totalAmount.subtract(eventDiscountAmount);
                 }
 
                 if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
                     eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
+                    totalAmount = totalAmount.subtract(eventDiscountAmount);
                 }
 
             }
@@ -71,9 +73,7 @@ public class ConvenienceSystem {
             }
 
             // 최종 금액
-            finalAmount = totalAmount
-                    .subtract(eventDiscountAmount)
-                    .subtract(new BigDecimal(membershipDiscountAmount));
+            finalAmount = totalAmount.subtract(new BigDecimal(membershipDiscountAmount));
 
             System.out.println("==============W 편의점================");
             System.out.println("상품명                수량       금액");

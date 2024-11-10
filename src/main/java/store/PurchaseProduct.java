@@ -1,7 +1,5 @@
 package store;
 
-import camp.nextstep.edu.missionutils.DateTimes;
-
 import java.math.BigDecimal;
 
 public class PurchaseProduct {
