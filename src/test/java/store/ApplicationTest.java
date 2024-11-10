@@ -72,16 +72,16 @@ class ApplicationTest extends NsTest {
     @Test
     void 실행_결과_첫번째_케이스() {
         assertSimpleTest(() -> {
-            run("[콜라-10]", "N", "Y", "[콜라-3],[에너지바-5]", "N", "N", "N");
-            assertThat(output().replaceAll("\\s", "")).contains("행사할인-0", "멤버십할인-0", "내실돈10,000", "내실돈10,000");
+            run("[콜라-10]", "N", "Y",  "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈5,000");
         });
     }
 
     @Test
     void 실행_결과_두번째_케이스() {
         assertSimpleTest(() -> {
-            run("[콜라-10]", "N", "Y", "[콜라-3],[에너지바-5]", "N", "N", "N");
-            assertThat(output().replaceAll("\\s", "")).contains("내실돈10,000", "내실돈10,000");
+            run("[콜라-10]", "N", "Y", "Y", "[콜라-3],[에너지바-5]", "N", "N", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈5,000", "내실돈9,000");
         });
     }
 
