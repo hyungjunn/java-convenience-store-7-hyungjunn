@@ -28,7 +28,7 @@ public class ConvenienceSystem {
             BigDecimal totalAmount = BigDecimal.ZERO;
             BigDecimal eventDiscountAmount = BigDecimal.ZERO;
             BigInteger membershipDiscountAmount = BigInteger.ZERO;
-            BigDecimal finalAmount = BigDecimal.ZERO;
+            BigDecimal finalAmount;
 
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
                 String purchaseProductName = purchaseProduct.getName();
@@ -37,11 +37,14 @@ public class ConvenienceSystem {
                 BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
                 totalAmount = totalAmount.add(totalByProduct);
 
+                if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+                    eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
+                }
+
                 // TODO: 구매 수량관련 로직과 상품 재고 감소로직은 하나의 트랜잭션으로 적용시켜야함. 다 완성된 후 항상 확인
                 if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
-                    boolean wantedNoPromotionBenefit = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
-                    // TODO: (중요!!!)totalAmount 값이 바뀌게 되어 영수증에 바뀌어진 금액이 들어옴.
-                    totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedNoPromotionBenefit, totalAmount);
+                    boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
+                    totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
                 }
                 product.decreaseStock(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
 
@@ -55,24 +58,16 @@ public class ConvenienceSystem {
                     // totalAmount 에 증정 상품의 금액만큼 더해준다.
                     totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
                     eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
-                    totalAmount = totalAmount.subtract(eventDiscountAmount);
-                }
-
-                if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
-                    eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
                     // totalAmount = totalAmount.subtract(eventDiscountAmount);
-                    finalAmount = finalAmount.subtract(eventDiscountAmount);
                 }
             }
 
-            // 멤버쉽 할인
             boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
             if (wantedMembershipDiscount) {
-                membershipDiscountAmount = totalAmount.multiply(BigDecimal.valueOf(0.3)).setScale(-3, RoundingMode.DOWN).toBigInteger();
+                membershipDiscountAmount = totalAmount.subtract(eventDiscountAmount).multiply(BigDecimal.valueOf(0.3)).setScale(-3, RoundingMode.DOWN).toBigInteger();
             }
 
-            // 최종 금액
-            finalAmount = finalAmount.add(totalAmount.subtract(new BigDecimal(membershipDiscountAmount)));
+            finalAmount = totalAmount.subtract(eventDiscountAmount).subtract(new BigDecimal(membershipDiscountAmount));
 
             System.out.println("==============W 편의점================");
             outputView.printThreeTitle("상품명", "수량", "금액");
@@ -83,7 +78,7 @@ public class ConvenienceSystem {
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
                 if (numberOfGiveaway != 0) {
-                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway);
+                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway); // TODO: 수량 계산 제대로 안되는 문제 발생!
                 }
             }
             outputView.printAboutAmount(totalQuantity, totalAmount, eventDiscountAmount, membershipDiscountAmount, finalAmount);

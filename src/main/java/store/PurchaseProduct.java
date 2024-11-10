@@ -11,17 +11,19 @@ public class PurchaseProduct {
         this.purchaseQuantity = purchaseQuantity;
     }
 
-    public BigDecimal notifyRegularPaymentSomeQuantities(Product product, boolean wantedNoPromotionBenefit, BigDecimal totalAmount) {
+    public BigDecimal notifyRegularPaymentSomeQuantities(Product product, boolean wantedPayFixedPriceForSomeQuantity, BigDecimal totalAmount) {
         if (product.isPromotionalOutOfStock(purchaseQuantity)) {
             // Y: 일부 수량에 대해 정가로 결제한다.
-            if (wantedNoPromotionBenefit) {
-                BigDecimal promotionDiscount = product.applyPromotionDiscount(purchaseQuantity);// 프로모션 할인 금액 <<< 영수증 정보
-                return totalAmount.subtract(promotionDiscount);
+            // if (wantedPayFixedPriceForSomeQuantity) {
+            //     BigDecimal promotionDiscount = product.applyPromotionDiscount(purchaseQuantity);// 프로모션 할인 금액 <<< 영수증 정보
+            //     return totalAmount.subtract(promotionDiscount);
+            // }
+            if (!wantedPayFixedPriceForSomeQuantity) {
+                // N: 정가로 결제해야하는 수량만큼 제외한 후 결제를 진행한다.
+                BigDecimal amountWithoutFixedPrice = product.calculateAmountWithoutFixedPrice(purchaseQuantity);// 정가 결제 수량 제외한 결제 금액
+                purchaseQuantity -= product.countNoBenefitQuantity(purchaseQuantity);
+                totalAmount = amountWithoutFixedPrice;
             }
-            // N: 정가로 결제해야하는 수량만큼 제외한 후 결제를 진행한다.
-            BigDecimal amountWithoutFixedPrice = product.calculateAmountWithoutFixedPrice(purchaseQuantity);// 정가 결제 수량 제외한 결제 금액
-            purchaseQuantity -= product.countNoBenefitQuantity(purchaseQuantity);
-            totalAmount = amountWithoutFixedPrice;
         }
         return totalAmount;
     }
