@@ -1,5 +1,7 @@
 package store;
 
+import camp.nextstep.edu.missionutils.DateTimes;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -32,23 +34,25 @@ public class ConvenienceSystem {
             Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
             Product product = convenience.findProduct(purchaseProductName);
             BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
+            product.decreaseStock(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
             // 구매 상품을 순회하면서 합계를 더한다
             totalAmount = totalAmount.add(totalByProduct);
             if (product.getPromotion() != null && product.isPromotionalOutOfStock(purchaseQuantity, product.getGet())) {
                 boolean wantedNoPromotionBenefit = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
                 finalAmount = finalAmount.add(purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedNoPromotionBenefit, totalAmount));
             }
-            if (product.canApplyPromotion(purchaseQuantity)) {
-                int promotionGetQuantity = product.getPromotion().getGet();
+            if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+                long promotionGetQuantity = product.getPromotion().getGet();
                 boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
                 presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
                 purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
+                // 혜택을 받기 위해 추가한 상품 갯수만큼 재고에서 감소시킴
+                product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
                 // totalAmount 에 증정 상품의 금액만큼 더해준다.
                 totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
                 eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
-                // finalAmount = totalAmount.subtract(eventDiscountAmount);
             }
-            if (product.isApplyPromotion(purchaseQuantity)) {
+            if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
                 eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
             }
         }
@@ -87,6 +91,6 @@ public class ConvenienceSystem {
         System.out.println("totalAmount = " + df.format(totalAmount));
         System.out.println("eventDiscountAmount = -" + df.format(eventDiscountAmount));
         System.out.println("membershipDiscountAmount = -" + df.format(membershipDiscountAmount));
-        System.out.println("finalAmount = " + df.format(finalAmount));
+        System.out.println("내실돈 " + df.format(finalAmount));
     }
 }

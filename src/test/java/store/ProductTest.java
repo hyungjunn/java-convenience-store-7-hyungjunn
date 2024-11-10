@@ -51,15 +51,15 @@ class ProductTest {
         Product orangeJuice = new Product("오렌지주스", BigDecimal.valueOf(1_800L), 9L, 0L, Promotion.MD_RECOMMEND);
         Product chocoBar = new Product("초코바", BigDecimal.valueOf(2_000L), 0L, 5L, null);
 
-        boolean cannotApply = coke.canApplyPromotion(3L);
-        boolean cannotApply2 = coke.canApplyPromotion(4L);
-        boolean canApply = coke.canApplyPromotion(5L);
+        boolean cannotApply = coke.canApplyPromotion(3L, LocalDate.of(2024, 11, 11));
+        boolean cannotApply2 = coke.canApplyPromotion(4L, LocalDate.of(2024, 11, 11));
+        boolean canApply = coke.canApplyPromotion(5L, LocalDate.of(2024, 11, 11));
 
-        boolean cannotApply3 = orangeJuice.canApplyPromotion(4L);
-        boolean canApply2 = orangeJuice.canApplyPromotion(5L);
+        boolean cannotApply3 = orangeJuice.canApplyPromotion(4L, LocalDate.of(2024, 11, 11));
+        boolean canApply2 = orangeJuice.canApplyPromotion(5L, LocalDate.of(2024, 11, 11));
 
         // 프로모션이 없는 경우
-        boolean canApplyPromotion = chocoBar.canApplyPromotion(3L);
+        boolean canApplyPromotion = chocoBar.canApplyPromotion(3L, LocalDate.of(2024, 11, 11));
 
         assertThat(cannotApply).isFalse();
         assertThat(cannotApply2).isFalse();

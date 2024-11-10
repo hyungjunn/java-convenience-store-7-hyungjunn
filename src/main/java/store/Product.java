@@ -111,15 +111,21 @@ public class Product {
     }
 
     // 증정 혜택을 받을 수 있는지
-    public boolean canApplyPromotion(Long purchaseQuantity) {
+    public boolean canApplyPromotion(Long purchaseQuantity, LocalDate date) {
         if (isNotAppliedPromotion()) {
+            return false;
+        }
+        if (!promotion.isPromotionPeriod(date)) {
             return false;
         }
         return promotion.canApplyPromotion(purchaseQuantity);
     }
 
-    public boolean isApplyPromotion(Long purchaseQuantity) {
+    public boolean isApplyPromotion(Long purchaseQuantity, LocalDate date) {
         if (isNotAppliedPromotion()) {
+            return false;
+        }
+        if (!promotion.isPromotionPeriod(date)) {
             return false;
         }
         return promotion.isApplyPromotion(purchaseQuantity);
