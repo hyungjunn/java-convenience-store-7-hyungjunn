@@ -75,15 +75,16 @@ public class ConvenienceSystem {
             // 최종 금액
             finalAmount = totalAmount.subtract(new BigDecimal(membershipDiscountAmount));
 
-            System.out.println("==============W 편의점================");
-            System.out.println("상품명                수량       금액");
+            System.out.println("==============W 편의점================"); // 길이 35
+            System.out.format("%-17s %-8s %-6s%n", "상품명", "수량", "금액");
             DecimalFormat df = new DecimalFormat("#,###");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
                 String purchaseProductName = purchaseProduct.getName();
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 totalQuantity += purchaseQuantity;
                 BigDecimal totalPrice = convenience.determineTotalPriceForPurchaseQuantity(purchaseProductName, purchaseQuantity);
-                System.out.println(purchaseProductName + "     " + purchaseQuantity + "    " + df.format(totalPrice));
+                System.out.printf("%-17s %-8s %-6s%n", purchaseProductName, purchaseQuantity, df.format(totalPrice));
+                // System.out.println(purchaseProductName + "     " + purchaseQuantity + "    " + df.format(totalPrice));
             }
             System.out.println("=============증     정===============");
             for (PurchaseProduct purchaseProduct : purchaseProducts) {
@@ -91,14 +92,14 @@ public class ConvenienceSystem {
                 Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
                 long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
                 if (numberOfGiveaway != 0) {
-                    System.out.println(purchaseProductName + "             " + numberOfGiveaway);
+                    System.out.printf("%-17s %-8s%n", purchaseProductName, numberOfGiveaway);
                 }
             }
             System.out.println("====================================");
-            System.out.println("총구매액" + "          " + totalQuantity + "           " + df.format(totalAmount));
-            System.out.println("행사할인              -" + df.format(eventDiscountAmount));
-            System.out.println("멤버십할인 =           -" + df.format(membershipDiscountAmount));
-            System.out.println("내실돈                " + df.format(finalAmount));
+            System.out.printf("%-17s %-8s %-6s%n", "총구매액", totalQuantity, df.format(totalAmount));
+            System.out.printf("%-17s %s%n", "행사할인", "-" + df.format(eventDiscountAmount));
+            System.out.printf("%-17s %s%n", "멤버십할인", "-" + df.format(membershipDiscountAmount));
+            System.out.printf("%-17s %s%n", "내실돈", df.format(finalAmount));
 
             boolean wantedPurchaseOther = inputView.readWantedPurchaseOther();
             if (wantedPurchaseOther) {
