@@ -53,32 +53,10 @@ public class ConvenienceSystem {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal eventDiscountAmount = BigDecimal.ZERO;
         BigInteger membershipDiscountAmount = BigInteger.ZERO;
-
         for (PurchaseProduct purchaseProduct : purchaseProducts) {
-            String purchaseProductName = purchaseProduct.getName();
-            Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
-            Product product = convenience.findProduct(purchaseProductName);
-            BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
-            totalAmount = totalAmount.add(totalByProduct);
-
-            if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
-                eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
-            }
-
-            if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
-                boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
-                totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
-            }
-
-            if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
-                long promotionGetQuantity = product.getPromotion().getGet();
-                boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
-                long presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
-                purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
-                product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
-                totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
-                eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
-            }
+            ProductAmountDetail productAmountDetail = calculateProductAmount(purchaseProduct);
+            totalAmount = totalAmount.add(productAmountDetail.getTotalAmount());
+            eventDiscountAmount = eventDiscountAmount.add(productAmountDetail.getEventDiscountAmount());
         }
 
         boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
@@ -87,6 +65,37 @@ public class ConvenienceSystem {
         }
 
         return new PaymentInformation(totalAmount, eventDiscountAmount, membershipDiscountAmount);
+    }
+
+    // 개별 구매 로직
+    private ProductAmountDetail calculateProductAmount(PurchaseProduct purchaseProduct) {
+        String purchaseProductName = purchaseProduct.getName();
+        Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
+        Product product = convenience.findProduct(purchaseProductName);
+        BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
+        BigDecimal totalAmount = (BigDecimal.ZERO).add(totalByProduct);
+        BigDecimal eventDiscountAmount = BigDecimal.ZERO;
+
+        if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+            eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
+        }
+
+        if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
+            boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
+            totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
+        }
+
+        if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+            long promotionGetQuantity = product.getPromotion().getGet();
+            boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
+            long presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
+            purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
+            product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
+            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
+            eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
+        }
+
+        return new ProductAmountDetail(totalAmount, eventDiscountAmount);
     }
 
     private long countTotalQuantity(List<PurchaseProduct> purchaseProducts) {
