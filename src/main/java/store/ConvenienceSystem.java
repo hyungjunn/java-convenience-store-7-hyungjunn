@@ -34,13 +34,13 @@ public class ConvenienceSystem {
         List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
         PaymentInformation paymentInformation = determinePaymentAmount(purchaseProducts);
         BigDecimal finalAmount = paymentInformation.calculateFinalAmount();
-        long totalQuantity = countTotalQuantity(purchaseProducts);
-        renderPurchaseResult(purchaseProducts, totalQuantity, paymentInformation, finalAmount);
+        renderPurchaseResult(purchaseProducts, paymentInformation, finalAmount);
     }
 
-    private void renderPurchaseResult(List<PurchaseProduct> purchaseProducts, long totalQuantity, PaymentInformation paymentInformation, BigDecimal finalAmount) {
+    private void renderPurchaseResult(List<PurchaseProduct> purchaseProducts, PaymentInformation paymentInformation, BigDecimal finalAmount) {
         outputView.printConvenienceHeader();
         outputView.printThreeTitle("상품명", "수량", "금액");
+        long totalQuantity = countTotalQuantity(purchaseProducts);
         outputView.printGiftItemHeader();
         renderGiftItem(purchaseProducts);
         outputView.printAboutAmount(
