@@ -127,7 +127,13 @@ public class ConvenienceSystem {
     private PromotionBenefitResult handlePromotionBenefit(PurchaseProduct purchaseProduct) {
         Product product = convenience.findProduct(purchaseProduct.getName());
         long promotionGetQuantity = product.getPromotion().getGet();
+
+        // 입력
         boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProduct.getName(), promotionGetQuantity);
+
+        // 원하지 않으면 제로 리턴
+
+        // 원하면 재고 감소, 구입 갯수 증가
         long presentedQuantity = product.countNumberOfGiveAway(purchaseProduct.getPurchaseQuantity());
         purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
         product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
