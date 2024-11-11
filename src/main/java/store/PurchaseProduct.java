@@ -28,10 +28,8 @@ public class PurchaseProduct {
         return totalAmount;
     }
 
-    public void notifyGiftBenefitMessage(long presentedQuantity, boolean wantedAddBenefitProduct) {
-        if (wantedAddBenefitProduct) {
-            purchaseQuantity += presentedQuantity;
-        }
+    public void notifyGiftBenefit(long presentedQuantity) {
+        purchaseQuantity += presentedQuantity;
     }
 
     public long countTotalQuantity(long totalQuantity) {
