@@ -10,45 +10,46 @@ import java.util.List;
 public class ConvenienceSystem {
     private final Convenience convenience;
     private final OutputView outputView;
-    private final InputView inputView;
+    private final InputView inputView = new InputView();
     private final PromotionHandler promotionHandler;
 
     public ConvenienceSystem(Convenience convenience) {
         this.convenience = convenience;
-        this.promotionHandler = new PromotionHandler(convenience);
+        this.promotionHandler = new PromotionHandler(convenience, inputView);
         this.outputView = new OutputView();
-        this.inputView = new InputView();
     }
 
     public void productGuide() {
         List<Product> products = convenience.findAll();
-        while (true) {
-            outputView.printProductList(products);
-            List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
-            PaymentInformation paymentInformation = determinePaymentAmount(purchaseProducts);
-            BigDecimal finalAmount = paymentInformation.calculateFinalAmount();
+        do {
+            purchase(products);
+        } while (isContinueShopping());
+    }
 
-            System.out.println("==============W 편의점================");
-            outputView.printThreeTitle("상품명", "수량", "금액");
-            long totalQuantity = countTotalQuantity(purchaseProducts);
-            System.out.println("=============증     정===============");
-            for (PurchaseProduct purchaseProduct : purchaseProducts) {
-                String purchaseProductName = purchaseProduct.getName();
-                Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
-                long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
-                if (numberOfGiveaway != 0) {
-                    outputView.printFreeGift(purchaseProductName, numberOfGiveaway);
-                }
-                convenience.decreaseStock(purchaseProductName, purchaseQuantity);
-            }
-            outputView.printAboutAmount(totalQuantity, paymentInformation.getTotalAmount(), paymentInformation.getEventDiscountAmount(), paymentInformation.getMembershipDiscountAmount(), finalAmount);
+    private void purchase(List<Product> products) {
+        outputView.printProductList(products);
+        List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
+        PaymentInformation paymentInformation = determinePaymentAmount(purchaseProducts);
+        BigDecimal finalAmount = paymentInformation.calculateFinalAmount();
 
-            boolean wantedPurchaseOther = inputView.readWantedPurchaseOther();
-            if (wantedPurchaseOther) {
-                continue;
+        System.out.println("==============W 편의점================");
+        outputView.printThreeTitle("상품명", "수량", "금액");
+        long totalQuantity = countTotalQuantity(purchaseProducts);
+        System.out.println("=============증     정===============");
+        for (PurchaseProduct purchaseProduct : purchaseProducts) {
+            String purchaseProductName = purchaseProduct.getName();
+            Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
+            long numberOfGiveaway = convenience.determineGiftItemCount(purchaseProductName, purchaseQuantity);
+            if (numberOfGiveaway != 0) {
+                outputView.printFreeGift(purchaseProductName, numberOfGiveaway);
             }
-            break;
+            convenience.decreaseStock(purchaseProductName, purchaseQuantity);
         }
+        outputView.printAboutAmount(totalQuantity, paymentInformation.getTotalAmount(), paymentInformation.getEventDiscountAmount(), paymentInformation.getMembershipDiscountAmount(), finalAmount);
+    }
+
+    private boolean isContinueShopping() {
+        return inputView.readWantedPurchaseOther();
     }
 
     private PaymentInformation determinePaymentAmount(List<PurchaseProduct> purchaseProducts) {
@@ -76,14 +77,13 @@ public class ConvenienceSystem {
     }
 
     private ProductAmountDetail calculateProductAmount(PurchaseProduct purchaseProduct) {
-        String purchaseProductName = purchaseProduct.getName();
         Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
-        Product product = convenience.findProduct(purchaseProductName);
+        Product product = convenience.findProduct(purchaseProduct.getName());
         BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
         BigDecimal totalAmount = (BigDecimal.ZERO).add(totalByProduct);
         BigDecimal eventDiscountAmount = BigDecimal.ZERO;
 
-        if (isPromotionalApplicable(purchaseProduct)) {
+        if (promotionHandler.isPromotionalApplicable(purchaseProduct)) {
             eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
         }
         if (promotionHandler.isPromotionalOutOfStock(purchaseProduct)) {
@@ -91,7 +91,7 @@ public class ConvenienceSystem {
             totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
         }
         if (canApplyPromotion(purchaseProduct)) {
-            PromotionBenefitResult promotionBenefitResult = handlePromotionBenefit(purchaseProduct);
+            PromotionBenefitResult promotionBenefitResult = promotionHandler.handlePromotionBenefit(purchaseProduct);
             totalAmount = totalAmount.add(promotionBenefitResult.totalAmount());
             eventDiscountAmount = promotionBenefitResult.eventDiscountAmount();
         }
@@ -103,12 +103,6 @@ public class ConvenienceSystem {
         return product.canApplyPromotion(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
     }
 
-
-
-    private boolean isPromotionalApplicable(PurchaseProduct purchaseProduct) {
-        Product product = convenience.findProduct(purchaseProduct.getName());
-        return product.isApplyPromotion(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
-    }
 
     private long countTotalQuantity(List<PurchaseProduct> purchaseProducts) {
         long totalQuantity = 0L;
@@ -122,29 +116,7 @@ public class ConvenienceSystem {
         return totalQuantity;
     }
 
-    private PromotionBenefitResult handlePromotionBenefit(PurchaseProduct purchaseProduct) {
-        Product product = convenience.findProduct(purchaseProduct.getName());
-        long promotionGetQuantity = product.getPromotion().getGet();
-        boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProduct.getName(), promotionGetQuantity);
-        if (!wantedAddBenefitProduct) {
-            return new PromotionBenefitResult(BigDecimal.ZERO, BigDecimal.ZERO);
-        }
-        long presentedQuantity = calculatePresentedQuantity(purchaseProduct);
-        processPromotionBenefit(purchaseProduct, presentedQuantity, promotionGetQuantity);
-        return new PromotionBenefitResult(
-                product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)),
-                product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity))
-        );
-    }
 
-    private void processPromotionBenefit(PurchaseProduct purchaseProduct, long presentedQuantity, long promotionGetQuantity) {
-        Product product = convenience.findProduct(purchaseProduct.getName());
-        purchaseProduct.notifyGiftBenefit(presentedQuantity);
-        product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
-    }
 
-    private long calculatePresentedQuantity(PurchaseProduct purchaseProduct) {
-        Product product = convenience.findProduct(purchaseProduct.getName());
-        return product.countNumberOfGiveAway(purchaseProduct.getPurchaseQuantity());
-    }
+
 }
