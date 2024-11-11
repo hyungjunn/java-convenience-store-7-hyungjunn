@@ -61,4 +61,12 @@ public class OutputView {
     public void printMembershipDiscountAmount(String first, BigDecimal second) {
         System.out.printf("%-19s %13s%n", first, "-" + df.format(second));
     }
+
+    public void printConvenienceHeader() {
+        System.out.println("==============W 편의점================");
+    }
+
+    public void printGiftItemHeader() {
+        System.out.println("=============증     정===============");
+    }
 }

@@ -31,11 +31,25 @@ public class ConvenienceSystem {
         List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
         PaymentInformation paymentInformation = determinePaymentAmount(purchaseProducts);
         BigDecimal finalAmount = paymentInformation.calculateFinalAmount();
-
-        System.out.println("==============W 편의점================");
-        outputView.printThreeTitle("상품명", "수량", "금액");
         long totalQuantity = countTotalQuantity(purchaseProducts);
-        System.out.println("=============증     정===============");
+        renderPurchaseResult(purchaseProducts, totalQuantity, paymentInformation, finalAmount);
+    }
+
+    private void renderPurchaseResult(List<PurchaseProduct> purchaseProducts, long totalQuantity, PaymentInformation paymentInformation, BigDecimal finalAmount) {
+        outputView.printConvenienceHeader();
+        outputView.printThreeTitle("상품명", "수량", "금액");
+        outputView.printGiftItemHeader();
+        renderGiftItem(purchaseProducts);
+        outputView.printAboutAmount(
+                totalQuantity,
+                paymentInformation.getTotalAmount(),
+                paymentInformation.getEventDiscountAmount(),
+                paymentInformation.getMembershipDiscountAmount(),
+                finalAmount
+        );
+    }
+
+    private void renderGiftItem(List<PurchaseProduct> purchaseProducts) {
         for (PurchaseProduct purchaseProduct : purchaseProducts) {
             String purchaseProductName = purchaseProduct.getName();
             Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
@@ -45,7 +59,6 @@ public class ConvenienceSystem {
             }
             convenience.decreaseStock(purchaseProductName, purchaseQuantity);
         }
-        outputView.printAboutAmount(totalQuantity, paymentInformation.getTotalAmount(), paymentInformation.getEventDiscountAmount(), paymentInformation.getMembershipDiscountAmount(), finalAmount);
     }
 
     private boolean isContinueShopping() {
