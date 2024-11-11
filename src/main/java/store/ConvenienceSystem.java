@@ -23,46 +23,8 @@ public class ConvenienceSystem {
         while (true) {
             outputView.printProductList(products);
             List<PurchaseProduct> purchaseProducts = inputView.readProductDetail(convenience); // TODO: 디테일 입력 검증
-
-            long presentedQuantity;
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            BigDecimal eventDiscountAmount = BigDecimal.ZERO;
-            BigInteger membershipDiscountAmount = BigInteger.ZERO;
-            BigDecimal finalAmount;
-
-            for (PurchaseProduct purchaseProduct : purchaseProducts) {
-                String purchaseProductName = purchaseProduct.getName();
-                Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
-                Product product = convenience.findProduct(purchaseProductName);
-                BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
-                totalAmount = totalAmount.add(totalByProduct);
-
-                if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
-                    eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
-                }
-
-                if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
-                    boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
-                    totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
-                }
-
-                if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
-                    long promotionGetQuantity = product.getPromotion().getGet();
-                    boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
-                    presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
-                    purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
-                    product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
-                    totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
-                    eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
-                }
-            }
-
-            boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
-            if (wantedMembershipDiscount) {
-                membershipDiscountAmount = totalAmount.subtract(eventDiscountAmount).multiply(BigDecimal.valueOf(0.3)).setScale(-3, RoundingMode.DOWN).toBigInteger();
-            }
-
-            finalAmount = totalAmount.subtract(eventDiscountAmount).subtract(new BigDecimal(membershipDiscountAmount));
+            PaymentInformation paymentInformation = determinePaymentAmount(purchaseProducts);
+            BigDecimal finalAmount = paymentInformation.calculateFinalAmount();
 
             System.out.println("==============W 편의점================");
             outputView.printThreeTitle("상품명", "수량", "금액");
@@ -77,7 +39,7 @@ public class ConvenienceSystem {
                 }
                 convenience.decreaseStock(purchaseProductName, purchaseQuantity);
             }
-            outputView.printAboutAmount(totalQuantity, totalAmount, eventDiscountAmount, membershipDiscountAmount, finalAmount);
+            outputView.printAboutAmount(totalQuantity, paymentInformation.getTotalAmount(), paymentInformation.getEventDiscountAmount(), paymentInformation.getMembershipDiscountAmount(), finalAmount);
 
             boolean wantedPurchaseOther = inputView.readWantedPurchaseOther();
             if (wantedPurchaseOther) {
@@ -85,6 +47,46 @@ public class ConvenienceSystem {
             }
             break;
         }
+    }
+
+    private PaymentInformation determinePaymentAmount(List<PurchaseProduct> purchaseProducts) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal eventDiscountAmount = BigDecimal.ZERO;
+        BigInteger membershipDiscountAmount = BigInteger.ZERO;
+
+        for (PurchaseProduct purchaseProduct : purchaseProducts) {
+            String purchaseProductName = purchaseProduct.getName();
+            Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
+            Product product = convenience.findProduct(purchaseProductName);
+            BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
+            totalAmount = totalAmount.add(totalByProduct);
+
+            if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+                eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
+            }
+
+            if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
+                boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
+                totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
+            }
+
+            if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
+                long promotionGetQuantity = product.getPromotion().getGet();
+                boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
+                long presentedQuantity = product.countNumberOfGiveAway(purchaseQuantity);
+                purchaseProduct.notifyGiftBenefitMessage(presentedQuantity, wantedAddBenefitProduct);
+                product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());
+                totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
+                eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
+            }
+        }
+
+        boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
+        if (wantedMembershipDiscount) {
+            membershipDiscountAmount = totalAmount.subtract(eventDiscountAmount).multiply(BigDecimal.valueOf(0.3)).setScale(-3, RoundingMode.DOWN).toBigInteger();
+        }
+
+        return new PaymentInformation(totalAmount, eventDiscountAmount, membershipDiscountAmount);
     }
 
     private long countTotalQuantity(List<PurchaseProduct> purchaseProducts) {
