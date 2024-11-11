@@ -11,9 +11,11 @@ public class ConvenienceSystem {
     private final Convenience convenience;
     private final OutputView outputView;
     private final InputView inputView;
+    private final PromotionHandler promotionHandler;
 
     public ConvenienceSystem(Convenience convenience) {
         this.convenience = convenience;
+        this.promotionHandler = new PromotionHandler(convenience);
         this.outputView = new OutputView();
         this.inputView = new InputView();
     }
@@ -73,7 +75,6 @@ public class ConvenienceSystem {
                 .toBigInteger();
     }
 
-    // 개별 구매 로직
     private ProductAmountDetail calculateProductAmount(PurchaseProduct purchaseProduct) {
         String purchaseProductName = purchaseProduct.getName();
         Long purchaseQuantity = purchaseProduct.getPurchaseQuantity();
@@ -85,7 +86,7 @@ public class ConvenienceSystem {
         if (isPromotionalApplicable(purchaseProduct)) {
             eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
         }
-        if (isPromotionalOutOfStock(purchaseProduct)) {
+        if (promotionHandler.isPromotionalOutOfStock(purchaseProduct)) {
             boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
             totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
         }
@@ -102,10 +103,7 @@ public class ConvenienceSystem {
         return product.canApplyPromotion(purchaseProduct.getPurchaseQuantity(), DateTimes.now().toLocalDate());
     }
 
-    private boolean isPromotionalOutOfStock(PurchaseProduct purchaseProduct) {
-        Product product = convenience.findProduct(purchaseProduct.getName());
-        return product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseProduct.getPurchaseQuantity());
-    }
+
 
     private boolean isPromotionalApplicable(PurchaseProduct purchaseProduct) {
         Product product = convenience.findProduct(purchaseProduct.getName());
