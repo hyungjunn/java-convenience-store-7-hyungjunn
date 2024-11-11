@@ -52,19 +52,25 @@ public class ConvenienceSystem {
     private PaymentInformation determinePaymentAmount(List<PurchaseProduct> purchaseProducts) {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal eventDiscountAmount = BigDecimal.ZERO;
-        BigInteger membershipDiscountAmount = BigInteger.ZERO;
         for (PurchaseProduct purchaseProduct : purchaseProducts) {
             ProductAmountDetail productAmountDetail = calculateProductAmount(purchaseProduct);
             totalAmount = totalAmount.add(productAmountDetail.getTotalAmount());
             eventDiscountAmount = eventDiscountAmount.add(productAmountDetail.getEventDiscountAmount());
         }
-
-        boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
-        if (wantedMembershipDiscount) {
-            membershipDiscountAmount = totalAmount.subtract(eventDiscountAmount).multiply(BigDecimal.valueOf(0.3)).setScale(-3, RoundingMode.DOWN).toBigInteger();
-        }
-
+        BigInteger membershipDiscountAmount = determinePaymentAmount(totalAmount, eventDiscountAmount);
         return new PaymentInformation(totalAmount, eventDiscountAmount, membershipDiscountAmount);
+    }
+
+    private BigInteger determinePaymentAmount(BigDecimal totalAmount, BigDecimal eventDiscountAmount) {
+        boolean wantedMembershipDiscount = inputView.readWantedMembershipDiscount();
+        if (!wantedMembershipDiscount) {
+            return BigInteger.ZERO;
+        }
+        return totalAmount
+                .subtract(eventDiscountAmount)
+                .multiply(BigDecimal.valueOf(0.3))
+                .setScale(-3, RoundingMode.DOWN)
+                .toBigInteger();
     }
 
     // 개별 구매 로직
@@ -79,12 +85,10 @@ public class ConvenienceSystem {
         if (product.isApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
             eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
         }
-
         if (product.isAppliedPromotion() && product.isPromotionalOutOfStock(purchaseQuantity)) {
             boolean wantedPayFixedPriceForSomeQuantity = inputView.readWantedNoPromotionBenefit(product, purchaseQuantity);
             totalAmount = purchaseProduct.notifyRegularPaymentSomeQuantities(product, wantedPayFixedPriceForSomeQuantity, totalAmount);
         }
-
         if (product.canApplyPromotion(purchaseQuantity, DateTimes.now().toLocalDate())) {
             long promotionGetQuantity = product.getPromotion().getGet();
             boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProductName, promotionGetQuantity);
@@ -94,7 +98,6 @@ public class ConvenienceSystem {
             totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity)));
             eventDiscountAmount = product.getPrice().multiply(BigDecimal.valueOf(presentedQuantity));
         }
-
         return new ProductAmountDetail(totalAmount, eventDiscountAmount);
     }
 
