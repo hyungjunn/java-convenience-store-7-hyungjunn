@@ -133,4 +133,5 @@ class ProductTest {
         assertThat(amount).isEqualTo(BigInteger.valueOf(2_000L));
         assertThat(amount2).isEqualTo(BigInteger.valueOf(2_000L));
     }
+
 }

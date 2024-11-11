@@ -3,9 +3,9 @@ package store;
 import java.time.LocalDate;
 
 public enum Promotion {
-    CARBONATE("탄산2+1", 2, 1, LocalDate.of(2024, 01, 01), LocalDate.of(2024, 12, 31)),
-    MD_RECOMMEND("MD추천상품", 1, 1, LocalDate.of(2024, 01, 01), LocalDate.of(2024, 12, 31)),
-    FLASH_DISCOUNT("반짝할인", 1, 1, LocalDate.of(2024, 11, 01), LocalDate.of(2024, 11, 30));
+    CARBONATE("탄산2+1", 2, 1, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
+    MD_RECOMMEND("MD추천상품", 1, 1, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
+    FLASH_DISCOUNT("반짝할인", 1, 1, LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30));
 
     private final String name;
     private final int buy;
@@ -37,8 +37,7 @@ public enum Promotion {
         return purchaseQuantity >= extractBuyAndGet();
     }
 
-    // 증정할 수 있는 갯수
-    public long countNumberOfFreeGift(long purchaseQuantity) {
+    public long countFreeGift(long purchaseQuantity) {
         int buyAndGet = extractBuyAndGet();
         if (purchaseQuantity >= buyAndGet) {
             return purchaseQuantity / buyAndGet;
@@ -61,19 +60,8 @@ public enum Promotion {
         return name;
     }
 
-    public int getBuy() {
-        return buy;
-    }
-
     public int getGet() {
         return get;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
 }

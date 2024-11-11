@@ -5,4 +5,5 @@ public class Application {
         ConvenienceSystem convenienceSystem = new ConvenienceSystem(new Convenience(new StoreRoom()));
         convenienceSystem.productGuide();
     }
+
 }

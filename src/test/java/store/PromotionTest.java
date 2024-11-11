@@ -20,4 +20,5 @@ class PromotionTest {
         assertThat(isDuringPromotion2).isTrue();
         assertThat(isDuringPromotion3).isFalse();
     }
+
 }

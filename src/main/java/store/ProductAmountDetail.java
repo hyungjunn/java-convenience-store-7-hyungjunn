@@ -18,4 +18,5 @@ public class ProductAmountDetail {
     public BigDecimal getEventDiscountAmount() {
         return eventDiscountAmount;
     }
+
 }

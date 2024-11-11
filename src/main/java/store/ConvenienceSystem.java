@@ -8,6 +8,9 @@ import java.math.RoundingMode;
 import java.util.List;
 
 public class ConvenienceSystem {
+    private static final double EVENT_DISCOUNT_RATE = 0.3;
+    private static final int HUNDREDS_PLACE = -3; // 백의 자리
+
     private final Convenience convenience;
     private final OutputView outputView;
     private final InputView inputView = new InputView();
@@ -84,8 +87,8 @@ public class ConvenienceSystem {
         }
         return totalAmount
                 .subtract(eventDiscountAmount)
-                .multiply(BigDecimal.valueOf(0.3))
-                .setScale(-3, RoundingMode.DOWN)
+                .multiply(BigDecimal.valueOf(EVENT_DISCOUNT_RATE))
+                .setScale(HUNDREDS_PLACE, RoundingMode.DOWN)
                 .toBigInteger();
     }
 
@@ -95,7 +98,6 @@ public class ConvenienceSystem {
         BigDecimal totalByProduct = product.getPrice().multiply(BigDecimal.valueOf(purchaseProduct.getPurchaseQuantity()));
         BigDecimal totalAmount = (BigDecimal.ZERO).add(totalByProduct);
         BigDecimal eventDiscountAmount = BigDecimal.ZERO;
-
         if (promotionHandler.isPromotionalApplicable(purchaseProduct)) {
             eventDiscountAmount = product.applyPromotionDiscount(purchaseQuantity);
         }
@@ -128,8 +130,5 @@ public class ConvenienceSystem {
         }
         return totalQuantity;
     }
-
-
-
 
 }

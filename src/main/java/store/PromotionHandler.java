@@ -28,7 +28,9 @@ public class PromotionHandler {
     public PromotionBenefitResult handlePromotionBenefit(PurchaseProduct purchaseProduct) {
         Product product = convenience.findProduct(purchaseProduct.getName());
         long promotionGetQuantity = product.getPromotion().getGet();
-        boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(purchaseProduct.getName(), promotionGetQuantity);
+        boolean wantedAddBenefitProduct = inputView.readWantedAddBenefitProduct(
+                purchaseProduct.getName(), promotionGetQuantity
+        );
         if (!wantedAddBenefitProduct) {
             return new PromotionBenefitResult(BigDecimal.ZERO, BigDecimal.ZERO);
         }
@@ -40,7 +42,11 @@ public class PromotionHandler {
         );
     }
 
-    private void processPromotionBenefit(PurchaseProduct purchaseProduct, long presentedQuantity, long promotionGetQuantity) {
+    private void processPromotionBenefit(
+            PurchaseProduct purchaseProduct,
+            long presentedQuantity,
+            long promotionGetQuantity
+    ) {
         Product product = convenience.findProduct(purchaseProduct.getName());
         purchaseProduct.notifyGiftBenefit(presentedQuantity);
         product.decreaseStock(promotionGetQuantity, DateTimes.now().toLocalDate());

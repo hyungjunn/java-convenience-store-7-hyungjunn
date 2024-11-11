@@ -11,37 +11,51 @@ import java.util.Map;
 
 public class StoreRoom {
     private static final String FIRST_ROW_PREFIX = "name";
+    private static final String PRODUCTS_FILE_LOCATION = "src/main/resources/products.md";
+    private static final String ROW_SPLIT_REGEX = ",";
+    private static final byte PRICE_INDEX = 1;
+    private static final byte QUANTITY_INDEX = 2;
+    private static final byte PROMOTION_NAME_INDEX = 3;
+    private static final String NO_PROMOTION = "null";
+
     private static final Map<Long, Product> store = new HashMap<>();
 
     public void save() {
         long id = 0L;
-        try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/products.md"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(PRODUCTS_FILE_LOCATION))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (isTitleRow(line)) {
                     continue;
                 }
-                List<String> columns = Arrays.asList(line.split(","));
-                String name = columns.get(0);
-                BigDecimal price = new BigDecimal(columns.get(1));
-                long quantity = Long.parseLong(columns.get(2));
-                String promotionName = columns.get(3);
-
-                Product existProduct = findByName(name);
+                List<String> columns = Arrays.asList(line.split(ROW_SPLIT_REGEX));
+                ProductRow row = getProductRow(columns);
+                Product existProduct = findByName(row.name());
                 if (existProduct == null) {
                     Product product = new Product.ProductBuilder()
-                            .name(name)
-                            .price(price)
+                            .name(row.name())
+                            .price(row.price())
                             .build();
                     store.put(++id, product);
                     existProduct = product;
                 }
-                storePromotionQuantity(promotionName, quantity, existProduct);
-                storeGeneralQuantity(promotionName, quantity, existProduct);
+                storePromotionQuantity(row.promotionName(), row.quantity(), existProduct);
+                storeGeneralQuantity(row.promotionName(), row.quantity(), existProduct);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static ProductRow getProductRow(List<String> columns) {
+        String name = columns.getFirst();
+        BigDecimal price = new BigDecimal(columns.get(PRICE_INDEX));
+        long quantity = Long.parseLong(columns.get(QUANTITY_INDEX));
+        String promotionName = columns.get(PROMOTION_NAME_INDEX);
+        return new ProductRow(name, price, quantity, promotionName);
+    }
+
+    private record ProductRow(String name, BigDecimal price, long quantity, String promotionName) {
     }
 
     private void storePromotionQuantity(String promotionName, long quantity, Product existProduct) {
@@ -67,7 +81,7 @@ public class StoreRoom {
     }
 
     private boolean isGeneralProduct(String promotionName) {
-        return promotionName.equals("null");
+        return promotionName.equals(NO_PROMOTION);
     }
 
     private boolean isTitleRow(String line) {
@@ -87,4 +101,5 @@ public class StoreRoom {
                 .stream()
                 .toList();
     }
+
 }

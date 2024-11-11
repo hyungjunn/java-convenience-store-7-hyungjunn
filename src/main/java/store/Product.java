@@ -6,6 +6,10 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class Product {
+    private static final double EVENT_DISCOUNT_RATE = 0.3;
+    private static final int HUNDREDS_PLACE = -3; // 백의 자리
+    private static final int MAX_MEMBERSHIP_DISCOUNT = 8000;
+
     private final String name;
     private final BigDecimal price;
     private Long promotionQuantity;
@@ -143,7 +147,7 @@ public class Product {
         if (promotionQuantity == 0) {
             return BigDecimal.ZERO;
         }
-        numberOfGiveaway = promotion.countNumberOfFreeGift(promotionQuantity);
+        numberOfGiveaway = promotion.countFreeGift(promotionQuantity);
         return calculateDiscount(numberOfGiveaway);
     }
 
@@ -164,10 +168,10 @@ public class Product {
             return 0L;
         }
         if (purchaseQuantity <= promotionQuantity) {
-            numberOfGiveaway = promotion.countNumberOfFreeGift(purchaseQuantity);
+            numberOfGiveaway = promotion.countFreeGift(purchaseQuantity);
         }
         if (purchaseQuantity > promotionQuantity) {
-            numberOfGiveaway = promotion.countNumberOfFreeGift(promotionQuantity);
+            numberOfGiveaway = promotion.countFreeGift(promotionQuantity);
         }
         return numberOfGiveaway;
     }
@@ -188,7 +192,6 @@ public class Product {
         return purchaseQuantity > countPromotionProduct(promotion.extractBuyAndGet());
     }
 
-    // 주어진 수량을 정가로 계산한다.
     public BigDecimal calculateWithFixedPrice(Long purchaseQuantity) {
         return price.multiply(BigDecimal.valueOf(purchaseQuantity));
     }
@@ -211,8 +214,8 @@ public class Product {
     }
 
     private BigInteger compareBetweenMaxMemberShipAnd(BigInteger discount) {
-        if (discount.compareTo(BigInteger.valueOf(8000)) > 0) {
-            return BigInteger.valueOf(8000);
+        if (discount.compareTo(BigInteger.valueOf(MAX_MEMBERSHIP_DISCOUNT)) > 0) {
+            return BigInteger.valueOf(MAX_MEMBERSHIP_DISCOUNT);
         }
         return discount;
     }
@@ -223,8 +226,8 @@ public class Product {
         BigDecimal promotionDiscount = applyPromotionDiscount(purchaseQuantity);
         BigDecimal remainAmount = totalAmount.subtract(promotionDiscount);
         BigInteger discount = remainAmount
-                .multiply(BigDecimal.valueOf(0.3))
-                .setScale(-3, RoundingMode.DOWN)
+                .multiply(BigDecimal.valueOf(EVENT_DISCOUNT_RATE))
+                .setScale(HUNDREDS_PLACE, RoundingMode.DOWN)
                 .toBigInteger();
         return compareBetweenMaxMemberShipAnd(discount);
     }
@@ -235,11 +238,6 @@ public class Product {
 
     public long getQuantity() {
         return promotionQuantity + generalQuantity;
-    }
-
-    // TODO: null 포인터 고려!
-    public int getGet() {
-        return promotion.getBuy();
     }
 
     public String getName() {
@@ -274,14 +272,4 @@ public class Product {
         this.promotion = promotion;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-               "name='" + name + '\'' +
-               ", price=" + price +
-               ", promotionQuantity=" + promotionQuantity +
-               ", generalQuantity=" + generalQuantity +
-               ", promotion=" + promotion +
-               '}';
-    }
 }

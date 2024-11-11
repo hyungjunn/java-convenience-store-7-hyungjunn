@@ -7,10 +7,15 @@ import java.util.List;
 
 public class OutputView {
     private static final DecimalFormat df = new DecimalFormat("#,###");
+    private static final String GUIDE_CONVENIENT_PROMPT = "안녕하세요. W편의점입니다.";
+    private static final String GUIDE_POSSESSING_PRODUCTS_PROMPT = "현재 보유하고 있는 상품입니다.\n";
+    private static final String CONVENIENT_HEADER = "==============W 편의점================";
+    private static final String GIFT_ITEM_HEADER = "=============증     정===============";
+    private static final String PURCHASE_PAYMENT_HEADER = "====================================";
 
     public void printProductList(List<Product> products) {
-        System.out.println("안녕하세요. W편의점입니다.");
-        System.out.println("현재 보유하고 있는 상품입니다.\n");
+        System.out.println(GUIDE_CONVENIENT_PROMPT);
+        System.out.println(GUIDE_POSSESSING_PRODUCTS_PROMPT);
         for (Product product : products) {
             if (product.getPromotion() != null) {
                 System.out.println("- " + product.getName() + " " + df.format(product.getPrice()) + "원 " + product.getPromotionQuantity() + "개 " + product.getPromotion().getName());
@@ -31,7 +36,7 @@ public class OutputView {
             BigInteger membershipDiscountAmount,
             BigDecimal finalAmount
     ) {
-        System.out.println("====================================");
+        System.out.println(PURCHASE_PAYMENT_HEADER);
         printThreeColumn("총구매액", totalQuantity, totalAmount);
         printSalesEventAmount("행사할인", eventDiscountAmount);
         printMembershipDiscountAmount("멤버십할인", new BigDecimal(membershipDiscountAmount));
@@ -63,10 +68,11 @@ public class OutputView {
     }
 
     public void printConvenienceHeader() {
-        System.out.println("==============W 편의점================");
+        System.out.println(CONVENIENT_HEADER);
     }
 
     public void printGiftItemHeader() {
-        System.out.println("=============증     정===============");
+        System.out.println(GIFT_ITEM_HEADER);
     }
+
 }

@@ -6,14 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InputView {
+    private static final String PRODUCT_DETAIL_INPUT_PROMPT = "\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])";
+    private static final String SPLIT_PRODUCT_REGEX = ",";
+    private static final String SPLIT_NAME_AND_QUANTITY_REGEX = "-";
+    private static final byte NAME_INDEX = 0;
+    private static final byte QUANTITY_INDEX = 1;
+
     public List<PurchaseProduct> readProductDetail(Convenience convenience) {
-        System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+        System.out.println(PRODUCT_DETAIL_INPUT_PROMPT);
         while (true) {
             try {
                 List<PurchaseProduct> purchaseProducts = new ArrayList<>();
                 String line = Console.readLine();
                 validateProductDetail(line);
-                String[] strings = line.split(",");
+                String[] strings = line.split(SPLIT_PRODUCT_REGEX);
                 for (String string : strings) {
                     PurchaseProduct purchaseProduct = convertToPurchaseProductObj(convenience, string);
                     purchaseProducts.add(purchaseProduct);
@@ -27,11 +33,11 @@ public class InputView {
 
     private static PurchaseProduct convertToPurchaseProductObj(Convenience convenience, String string) {
         String nameAndQuantity = string.substring(1, string.length() - 1);
-        String[] productDetail = nameAndQuantity.split("-");
-        String name = productDetail[0];
+        String[] productDetail = nameAndQuantity.split(SPLIT_NAME_AND_QUANTITY_REGEX);
+        String name = productDetail[NAME_INDEX];
         Product product = convenience.findProduct(name);
         validateExist(product);
-        long quantity = Long.parseLong(productDetail[1]);
+        long quantity = Long.parseLong(productDetail[QUANTITY_INDEX]);
         validateExceedQuantity(quantity, product);
         return new PurchaseProduct(name, quantity);
     }
@@ -102,4 +108,5 @@ public class InputView {
         System.out.println("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
         return yesOrNo();
     }
+
 }

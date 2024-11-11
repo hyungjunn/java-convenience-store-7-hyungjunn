@@ -31,4 +31,5 @@ public class PaymentInformation {
     public BigInteger getMembershipDiscountAmount() {
         return membershipDiscountAmount;
     }
+
 }
