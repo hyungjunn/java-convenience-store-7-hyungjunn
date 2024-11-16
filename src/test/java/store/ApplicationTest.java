@@ -46,6 +46,46 @@ class ApplicationTest extends NsTest {
     }
 
     @Test
+    void 실행_결과_예시_첫_번째_구매() {
+        assertSimpleTest(() -> {
+            run("[콜라-3],[에너지바-5]", "Y", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("총구매액813,000", "내실돈9,000");
+        });
+    }
+
+    @Test
+    void 실행_결과_예시_두_번째_구매() {
+        assertSimpleTest(() -> {
+            run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("총구매액1010,000", "내실돈9,000", "내실돈8,000");
+        });
+    }
+
+    @Test
+    void 실행_결과_예시_세_번째_구매() {
+        assertSimpleTest(() -> {
+            run("[콜라-3],[에너지바-5]", "Y", "Y", "[콜라-10]", "Y", "N", "Y", "[오렌지주스-1]", "Y", "Y", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈9,000", "내실돈8,000", "내실돈1,800");
+        });
+    }
+
+    @Test
+    void 실행_결과_첫번째_케이스() {
+        assertSimpleTest(() -> {
+            run("[콜라-10]", "N", "Y",  "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈5,000");
+        });
+    }
+
+    @Test
+    void 실행_결과_두번째_케이스() {
+        assertSimpleTest(() -> {
+            run("[콜라-10]", "N", "Y", "Y", "[콜라-3],[에너지바-5]", "N", "N", "N");
+            assertThat(output().replaceAll("\\s", "")).contains("내실돈5,000", "내실돈9,000");
+        });
+    }
+
+    @Test
     void 기간에_해당하지_않는_프로모션_적용() {
         assertNowTest(() -> {
             run("[감자칩-2]", "N", "N");
@@ -65,4 +105,5 @@ class ApplicationTest extends NsTest {
     public void runMain() {
         Application.main(new String[]{});
     }
+
 }
